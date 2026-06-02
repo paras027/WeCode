@@ -1,0 +1,13 @@
+import express from 'express';
+import { createProblem, getProblem, updateProblem, deleteProblem } from '../controllers/problems.controller';
+import {isAuthenticated} from '../middlewares/auth.middleware';
+import {isAdmin} from '../middlewares/role.middleware';
+
+const router = express.Router();
+
+router.get("/problem",isAuthenticated, isAdmin, getProblem);
+router.post("/problem",isAuthenticated, isAdmin, createProblem);
+router.put("/problem/:id",isAuthenticated, isAdmin, updateProblem);
+router.delete("/problem/:id",isAuthenticated, isAdmin, deleteProblem);
+
+export default router;

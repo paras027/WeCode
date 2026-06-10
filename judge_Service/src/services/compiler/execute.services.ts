@@ -1,6 +1,6 @@
 import {exec} from "child_process"
 
-export function executeCode(filePath:string)
+export function executeCode(filePath:string,inputPath:string)
 {
     return new Promise((resolve,reject)=>{
         const outputFile = filePath.replace(
@@ -8,19 +8,33 @@ export function executeCode(filePath:string)
       ".exe"
     );
     const compileCommand = `g++ "${filePath}" -o "${outputFile}"`;
-    exec(compileCommand,(err,stdout,stderr)=>{
-        if(err){
-            console.log(`system error: cannot run the command ${err.message}`)
-            return;
-        }
-        if(stderr)
-        {
-            console.log(stderr);
-            return
-        }
-        console.log(stdout);
-        resolve(stdout);
-    })
+    const execCommand = `${outputFile} < ${inputPath}`
+        exec(compileCommand,(err,stdout,stderr)=>{
+            if(err){
+                reject(err);
+                console.log(`system error: cannot run the command ${err.message}`)
+                return;
+            }
+            if(stderr)
+            {
+                reject(stderr);
+                return
+            }
+            exec(execCommand ,(err,stdout,stderr)=>{
+                if(err)
+                {
+                    reject(err);
+                    return;
+                }
+                if(stderr)
+                {
+                    reject(stderr)
+                    return
+                }
+
+                resolve(stdout)
+            })
+        })
     })
     
 }

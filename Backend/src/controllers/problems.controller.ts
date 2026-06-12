@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import {AuthRequest} from '../middlewares/auth.middleware';
 import Problem from '../models/problem.model';
 import ApiError from '../utils/ApiError';
-
+import axios from "axios"
 
 
 export const createProblem = asyncHandler(async(req:AuthRequest,res:Response)=>{
@@ -32,6 +32,16 @@ export const createProblem = asyncHandler(async(req:AuthRequest,res:Response)=>{
         message:"Problem created successfully",
     })
 
+})
+
+export const getOneProblem = asyncHandler(async(req:AuthRequest,res:Response)=>{
+    const id = req.params.id;
+    const problems = await Problem.findById(id)
+
+        res.status(200).json({
+            success:true,
+            problems
+        })
 })
 
 export const getProblem = asyncHandler(async(req:AuthRequest,res:Response)=>{
@@ -88,5 +98,44 @@ export const deleteProblem = asyncHandler(async(req:AuthRequest,res:Response)=>{
     res.status(200).json({
         success:true,
         message:"Problem deleted successfully"
+    })
+})
+
+export const submitCode = asyncHandler(async(req:AuthRequest,res:Response)=>{
+    const {problemId,code} = req.body;
+
+    const problem = await Problem.findById(problemId);
+    if(!problem)
+    {
+        throw new ApiError(403,"problem not found");
+    }
+    const testcases = problem.testCases;
+    if(testcases.length===0)
+    {
+        throw new ApiError(403,"testcases not found");
+    }
+    const promise = testcases.map((testcase)=>{
+        return axios.post("http://localhost:3000/submit/code",{code:code,input:testcase.input});
+    })
+    
+    const result = await Promise.all(promise);
+    const finalResult = result.map((res,index)=>{
+        const expected = testcases[index].output
+        const input = testcases[index].input
+        const result = res.data.result;
+
+        return {
+            input:input,
+            expected:expected,
+            YourResult:result,
+            Passed:expected.trim() === result.trim()  //to trim irrelevant spaces
+        }
+    })
+    const allPassed = finalResult.every(tc=>tc.Passed)
+    const verdict = allPassed?"Accepted":"Wrong Answer";
+    return res.status(201).json({
+        message:"got the problem",
+        verdit:verdict,
+        result:finalResult
     })
 })

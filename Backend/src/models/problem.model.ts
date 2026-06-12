@@ -14,10 +14,16 @@ const exampleSchema = new mongoose.Schema({
 
 const testCaseSchema = new mongoose.Schema({
     input:{
-        type:String,
+        type:mongoose.Schema.Types.Mixed,
+        required:true
     },
     output:{
+        type:mongoose.Schema.Types.Mixed,
+        required:true
+    },
+    isHidden:{
         type:String,
+        default:true
     }
 })
 

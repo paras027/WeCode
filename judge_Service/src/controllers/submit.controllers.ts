@@ -7,6 +7,7 @@ import { generateInputFile } from "../services/compiler/generateInputFile";
 export async function submitController(req:Request,res:Response){
     const code = req.body.code;
     const input  = req.body.input;
+    console.log("worked")
     let path:string = generateCppFile(code);
     let inputPath: string  = generateInputFile(input);
     let output = await executeCode(path,inputPath);

@@ -9,18 +9,8 @@ export function executeCode(filePath:string,inputPath:string)
     );
     const compileCommand = `g++ "${filePath}" -o "${outputFile}"`;
     const execCommand = `${outputFile} < ${inputPath}`
-        exec(compileCommand,(err,stdout,stderr)=>{
-            if(err){
-                reject(err);
-                console.log(`system error: cannot run the command ${err.message}`)
-                return;
-            }
-            if(stderr)
-            {
-                reject(stderr);
-                return
-            }
-            exec(execCommand ,(err,stdout,stderr)=>{
+    const newCommand = `docker run --rm judge-image g++ --version`
+    exec(newCommand ,(err,stdout,stderr)=>{
                 if(err)
                 {
                     reject(err);
@@ -34,7 +24,32 @@ export function executeCode(filePath:string,inputPath:string)
 
                 resolve(stdout)
             })
-        })
+        // exec(compileCommand,(err,stdout,stderr)=>{
+        //     if(err){
+        //         reject(err);
+        //         console.log(`system error: cannot run the command ${err.message}`)
+        //         return;
+        //     }
+        //     if(stderr)
+        //     {
+        //         reject(stderr);
+        //         return
+        //     }
+        //     exec(execCommand ,(err,stdout,stderr)=>{
+        //         if(err)
+        //         {
+        //             reject(err);
+        //             return;
+        //         }
+        //         if(stderr)
+        //         {
+        //             reject(stderr)
+        //             return
+        //         }
+
+        //         resolve(stdout)
+        //     })
+        // })
     })
     
 }

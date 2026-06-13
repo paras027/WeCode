@@ -11,6 +11,7 @@ export async function submitController(req:Request,res:Response){
     let path:string = generateCppFile(code);
     let inputPath: string  = generateInputFile(input);
     let output = await executeCode(path,inputPath);
+    console.log(output)
     res.status(201).json({
         message:"code sent successfully",
         result: output

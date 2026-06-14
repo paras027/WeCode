@@ -132,9 +132,14 @@ export const submitCode = asyncHandler(async(req:AuthRequest,res:Response)=>{
         }
     })
     const allPassed = finalResult.every(tc=>tc.Passed)
-    const verdict = allPassed?"Accepted":"Wrong Answer";
+    const hasTLE = finalResult.some(tc=>tc.YourResult==="TLE")
+    let verdict = allPassed?"Accepted":"Wrong Answer";
+    if(hasTLE)
+    {
+        verdict = "Time Limit Exceeded";
+    }
     return res.status(201).json({
-        message:"got the problem",
+        message:"Result",
         verdit:verdict,
         result:finalResult
     })

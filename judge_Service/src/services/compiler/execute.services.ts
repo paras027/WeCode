@@ -14,26 +14,27 @@ export function executeCode(filePath: string, inputPath: string) {
         const compileCommand = `g++ "${filePath}" -o "${outputFile}"`;
         const execCommand = `${outputFile} < ${inputPath}`
         let file = path.parse(fileName).name
-        const dockerCommand = `docker run --rm \ -v ${folderPath}:/app/temp \ judge-image \ bash -c "g++ /app/temp/${fileName} -o /app/temp/${file}.exe && /app/temp/${file}.exe"
-`;
+        const dockerCommand =
+            `docker run --rm -v "${folderPath}:/app/temp" judge-image bash -c "g++ /app/temp/${fileName} -o /app/temp/${file}.exe && /app/temp/${file}.exe < /app/temp/${inputfileName}"`;
 
-        exec(dockerCommand,{timeout:2000}, (err, stdout, stderr) => {
-            if (err) {
-                if(err.killed)
-                {
-                    resolve("TLE");
-                    return;
-                }
-                reject(err);
-                console.log(`system error: cannot run the command ${err.message}`)
-                return;
-            }
+        exec(dockerCommand, { timeout: 2000 }, (err, stdout, stderr) => {
             if (stderr) {
-                reject(stderr);
+                console.log(stderr);
+                resolve({ message: "Compilation Error", output: stderr });
+
                 return
             }
+            if (err) {
+                if (err.killed) {
+                    resolve({ message: "TLE", output: err });
+                    return;
+                }
+                console.log(err);
+                resolve({ message: "Runtime Error", output: err });
+                return;
+            }
 
-                resolve(stdout)
+            resolve({ message: "Output recieved", output: stdout });
         })
     })
 

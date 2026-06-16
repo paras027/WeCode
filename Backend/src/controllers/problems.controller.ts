@@ -147,7 +147,7 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
                 Passed: false
             }
         }
-
+        //fixed code things
         const result = res.data.result;
 
         return {

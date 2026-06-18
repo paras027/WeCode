@@ -13,7 +13,7 @@ export async function submitController(req:Request,res:Response){
     let output = await executeCode(path,inputPath);
     console.log(output)
     res.status(201).json({
-        message:"code sent successfully",
-        result: output
+        message:"Result",
+        result: output,
     })
 }

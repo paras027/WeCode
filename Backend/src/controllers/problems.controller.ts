@@ -149,19 +149,24 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
         }
         //fixed code things
         const result = res.data.result;
-
+        console.log(res.data.result.message)
+        console.log(expected.trim() === res.data.result.output.trim())
         return {
             input: input,
             expected: expected,
             YourResult: res.data.result.message,
             output:res.data.result.output,
-            Passed: expected.trim() === result.trim()  //to trim irrelevant spaces
+            Passed: expected.trim() === res.data.result.output.trim(),
+            Runtime: result.Runtime
+  //to trim irrelevant spaces
         }
     })
+   
     let verdict;
     const hasCompile = finalResult.filter((res)=>
         res.YourResult === "Compilation Error"
     )
+    
     const hasRuntime = finalResult.filter((res)=>
         res.YourResult === "Runtime Error"
     )
@@ -173,16 +178,18 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     else if (hasTLE) {
         verdict = "Time Limit Exceeded";
     }
-    else if(hasRuntime){
+    else if(hasRuntime.length>0){
+         console.log("yaha tk aaya")
         verdict = "Runtime Error";
         finalResult = hasRuntime[0].output;
     }
     else
     {
+       
         const allPassed = finalResult.every(tc => tc.Passed)
         verdict = allPassed ? "Accepted" : "Wrong Answer";
     }
-    
+     
     return res.status(201).json({
         message: "Result",
         verdit: verdict,

@@ -187,7 +187,7 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     {
        
         const allPassed = finalResult.every(tc => tc.Passed)
-        verdict = allPassed ? "Accepted" : "Wrong Answer";
+        verdict = allPassed ? "Accepted" : "Wrong Answerr";
     }
      
     return res.status(201).json({

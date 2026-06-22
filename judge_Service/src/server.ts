@@ -2,6 +2,7 @@ import express from "express"
 import app from "./app"
 import env from "./config/env";
 import { judgeQueueEvents } from "./queue/judge.events";
+import "./workers/judge.worker"
 
 const startServer = async () => {
   try {

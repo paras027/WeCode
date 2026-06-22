@@ -4,6 +4,7 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 import Problem from '../models/problem.model';
 import ApiError from '../utils/ApiError';
 import axios from "axios"
+import { judgeQueue } from '../queue/judge.queue';
 
 
 export const createProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -112,87 +113,92 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     if (testcases.length === 0) {
         throw new ApiError(403, "testcases not found");
     }
-    const promise = testcases.map((testcase) => {
-        return axios.post("http://localhost:3000/submit/code", { code: code, input: testcase.input });
+    const job = await judgeQueue.add("submission",{
+        code:"#include<iostream>\nusing namespace std;\n\nint main(){\ncout<<0/100;\nreturn 0;\n}",
+        input:"world"
     })
+    console.log(job+" Problem Service Job")
+//     const promise = testcases.map((testcase) => {
+//         return axios.post("http://localhost:3000/submit/code", { code: code, input: testcase.input });
+//     })
 
-    const result = await Promise.all(promise);
-    let finalResult = result.map((res, index) => {
-        const expected = testcases[index].output
-        const input = testcases[index].input
-        if (res.data.result.message === "Compilation Error") {
-            return {
-                input: input,
-                expected: expected,
-                YourResult: "Compilation Error",
-                output:res.data.result.output,
-                Passed: false
-            }
-        }
-        if (res.data.result.message === "TLE") {
-            return {
-                input: input,
-                expected: expected,
-                YourResult: "TLE",
-                output:"",
-                Passed: false
-            }
-        }
-        if (res.data.result.message === "Runtime Error") {
-            return {
-                input: input,
-                expected: expected,
-                YourResult: "Runtime Error",
-                output:res.data.result.output,
-                Passed: false
-            }
-        }
-        //fixed code things
-        const result = res.data.result;
-        console.log(res.data.result.message)
-        console.log(expected.trim() === res.data.result.output.trim())
-        return {
-            input: input,
-            expected: expected,
-            YourResult: res.data.result.message,
-            output:res.data.result.output,
-            Passed: expected.trim() === res.data.result.output.trim(),
-            Runtime: result.Runtime
-  //to trim irrelevant spaces
-        }
-    })
+//     const result = await Promise.all(promise);
+//     let finalResult = result.map((res, index) => {
+//         const expected = testcases[index].output
+//         const input = testcases[index].input
+//         if (res.data.result.message === "Compilation Error") {
+//             return {
+//                 input: input,
+//                 expected: expected,
+//                 YourResult: "Compilation Error",
+//                 output:res.data.result.output,
+//                 Passed: false
+//             }
+//         }
+//         if (res.data.result.message === "TLE") {
+//             return {
+//                 input: input,
+//                 expected: expected,
+//                 YourResult: "TLE",
+//                 output:"",
+//                 Passed: false
+//             }
+//         }
+//         if (res.data.result.message === "Runtime Error") {
+//             return {
+//                 input: input,
+//                 expected: expected,
+//                 YourResult: "Runtime Error",
+//                 output:res.data.result.output,
+//                 Passed: false
+//             }
+//         }
+//         //fixed code things
+//         const result = res.data.result;
+//         console.log(res.data.result.message)
+//         console.log(expected.trim() === res.data.result.output.trim())
+//         return {
+//             input: input,
+//             expected: expected,
+//             YourResult: res.data.result.message,
+//             output:res.data.result.output,
+//             Passed: expected.trim() === res.data.result.output.trim(),
+//             Runtime: result.Runtime
+//   //to trim irrelevant spaces
+//         }
+//     })
    
-    let verdict;
-    const hasCompile = finalResult.filter((res)=>
-        res.YourResult === "Compilation Error"
-    )
+//     let verdict;
+//     const hasCompile = finalResult.filter((res)=>
+//         res.YourResult === "Compilation Error"
+//     )
     
-    const hasRuntime = finalResult.filter((res)=>
-        res.YourResult === "Runtime Error"
-    )
-    const hasTLE = finalResult.some(tc => tc.YourResult === "TLE")
-    if (hasCompile.length>0) {
-        verdict = "Compilation Error";
-        finalResult = hasCompile[0].output;
-    }
-    else if (hasTLE) {
-        verdict = "Time Limit Exceeded";
-    }
-    else if(hasRuntime.length>0){
-         console.log("yaha tk aaya")
-        verdict = "Runtime Error";
-        finalResult = hasRuntime[0].output;
-    }
-    else
-    {
+//     const hasRuntime = finalResult.filter((res)=>
+//         res.YourResult === "Runtime Error"
+//     )
+//     const hasTLE = finalResult.some(tc => tc.YourResult === "TLE")
+//     if (hasCompile.length>0) {
+//         verdict = "Compilation Error";
+//         finalResult = hasCompile[0].output;
+//     }
+//     else if (hasTLE) {
+//         verdict = "Time Limit Exceeded";
+//     }
+//     else if(hasRuntime.length>0){
+//          console.log("yaha tk aaya")
+//         verdict = "Runtime Error";
+//         finalResult = hasRuntime[0].output;
+//     }
+//     else
+//     {
        
-        const allPassed = finalResult.every(tc => tc.Passed)
-        verdict = allPassed ? "Accepted" : "Wrong Answerr";
-    }
+//         const allPassed = finalResult.every(tc => tc.Passed)
+//         verdict = allPassed ? "Accepted" : "Wrong Answerr";
+//     }
      
-    return res.status(201).json({
-        message: "Result",
-        verdit: verdict,
-        result: finalResult
-    })
+//     return res.status(201).json({
+//         message: "Result",
+//         verdit: verdict,
+//         result: finalResult
+//     })
 })

@@ -3,9 +3,9 @@ import {connectRedis} from "../config/redis"
 import { submissionService } from "../services/compiler/submission.services.";
 
 export const worker = new Worker("judgeQueue",async(job)=>{
-    console.log("got the job here")
+    // console.log(" got the job here",job)
     const output = await submissionService(job.data.code,job.data.input);
-    console.log(output);
+    console.log("Value----",output);
     return output
 },
 {

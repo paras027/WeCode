@@ -5,6 +5,7 @@ import Problem from '../models/problem.model';
 import ApiError from '../utils/ApiError';
 import axios from "axios"
 import { judgeQueue } from '../queue/judge.queue';
+import Submission from '../models/submission.model';
 
 
 export const createProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -113,11 +114,17 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     if (testcases.length === 0) {
         throw new ApiError(403, "testcases not found");
     }
-    const job = await judgeQueue.add("submission",{
-        code:"#include<iostream>\nusing namespace std;\n\nint main(){\ncout<<0/100;\nreturn 0;\n}",
-        input:"world"
+    const language = "cpp"
+
+    const submission = await Submission.create({
+        problemId,code,language,status:"Pending"
     })
-    console.log(job+" Problem Service Job")
+
+    const job = await judgeQueue.add("submission",{
+        submissionId:submission._id
+    })
+
+
 //     const promise = testcases.map((testcase) => {
 //         return axios.post("http://localhost:3000/submit/code", { code: code, input: testcase.input });
 //     })

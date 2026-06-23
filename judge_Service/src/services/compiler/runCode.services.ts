@@ -21,7 +21,7 @@ export function runCode(com:string){
                 }
             }
 
-            resolve({ message: "Output recieved", output: stdout,Runtime: end });
+            resolve({ message: "Accepted", output: stdout,Runtime: end });
         })
     })
 }

@@ -3,9 +3,11 @@ import app from "./app"
 import env from "./config/env";
 import { judgeQueueEvents } from "./queue/judge.events";
 import "./workers/judge.worker"
+import { connectDB } from "./config/db";
 
 const startServer = async () => {
   try {
+    await connectDB();
     await judgeQueueEvents.waitUntilReady()
     app.listen(env.PORT, () => {
       console.log(`Server is running on port ${env.PORT}`);

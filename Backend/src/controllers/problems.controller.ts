@@ -124,6 +124,11 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
         submissionId:submission._id
     })
 
+    return res.status(201).json({
+        message:"Submitted",
+        submissionId: submission._id
+    })
+
 
 //     const promise = testcases.map((testcase) => {
 //         return axios.post("http://localhost:3000/submit/code", { code: code, input: testcase.input });

@@ -8,7 +8,7 @@ export const worker = new Worker("judgeQueue",async(job)=>{
     // console.log(" got the job here",job)
     const data = await Submission.findByIdAndUpdate(job.data.submissionId,{
         status:"Running"
-    });
+    },{new:true});
     if(!data)
     {
         console.log("Got nthing")
@@ -16,12 +16,13 @@ export const worker = new Worker("judgeQueue",async(job)=>{
     const probId = data?.problemId;
     const problem = await Problem.findById(probId)
     let testcases = problem?.testCases || [];
-    console.log(data?.code)
+    const code = data!.code as string
     let verdict = ""
     let error = ""
     let result = []
+    let Runtime
     for(const testcase of testcases){
-        const output = await submissionService(data?.code,testcase.input);
+        const output = await submissionService(code,testcase.input);
         console.log("output of the result ",output);
         if(output.message == "Compilation Error")
         {
@@ -41,6 +42,7 @@ export const worker = new Worker("judgeQueue",async(job)=>{
             error = output.output
             break;
         }
+        Runtime+=output.runtime
         let ans = {
             input:testcase.input,
             expected:testcase.output,
@@ -62,7 +64,8 @@ export const worker = new Worker("judgeQueue",async(job)=>{
             status:"Accepted",
             verdict:"Passed",
             result:result,
-        });
+            runtime:Runtime
+        },{new:true});
     }
     else{
         try{
@@ -70,8 +73,9 @@ export const worker = new Worker("judgeQueue",async(job)=>{
                 status:"Accepted",
                 verdict:verdict,
                 result:result,
-                error:error
-            });
+                error:error,
+                runtime:Runtime
+            },{new:true});
         }
         catch(e){
             console.log("error: ",e)

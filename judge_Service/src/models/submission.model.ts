@@ -12,15 +12,15 @@ const submissionModel = new mongoose.Schema({
         required:true
     },
     code:{
-        type:String,
+        type: String,
         requried:true
     },
     language:{
-        type:String,
+        type: String,
         requried:true
     },
     status:{
-        type:String,
+        type: String,
         enum:["Accepted","Failed","Pending","Running"],
         requried:true
     },

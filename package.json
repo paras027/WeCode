@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "http": "^0.0.1-security",
+    "socket": "^1.1.128",
+    "socket.io": "^4.8.3"
+  }
+}

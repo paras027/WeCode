@@ -6,6 +6,7 @@ import ApiError from '../utils/ApiError';
 import axios from "axios"
 import { judgeQueue } from '../queue/judge.queue';
 import Submission from '../models/submission.model';
+import { publisher } from '../config/pubsub';
 
 
 export const createProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -119,7 +120,7 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     const submission = await Submission.create({
         problemId,code,language,status:"Pending"
     })
-
+    await publisher.publish("submission-update",JSON.stringify(submission))
     const job = await judgeQueue.add("submission",{
         submissionId:submission._id
     })

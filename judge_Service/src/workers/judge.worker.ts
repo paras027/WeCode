@@ -3,6 +3,7 @@ import {connectRedis} from "../config/redis"
 import { submissionService } from "../services/compiler/submission.services.";
 import Submission from "../models/submission.model";
 import Problem from "../models/problem.model";
+import { publisher } from "../config/pubsub";
 
 export const worker = new Worker("judgeQueue",async(job)=>{
     // console.log(" got the job here",job)
@@ -13,6 +14,9 @@ export const worker = new Worker("judgeQueue",async(job)=>{
     {
         console.log("Got nthing")
     }
+    await publisher.publish("submission-update",JSON.stringify({
+            data
+    }))
     const probId = data?.problemId;
     const problem = await Problem.findById(probId)
     let testcases = problem?.testCases || [];
@@ -20,7 +24,7 @@ export const worker = new Worker("judgeQueue",async(job)=>{
     let verdict = ""
     let error = ""
     let result = []
-    let Runtime
+    let Runtime = 0;
     for(const testcase of testcases){
         const output = await submissionService(code,testcase.input);
         console.log("output of the result ",output);
@@ -42,7 +46,8 @@ export const worker = new Worker("judgeQueue",async(job)=>{
             error = output.output
             break;
         }
-        Runtime+=output.runtime
+        console.log("Runtime: ",output.Runtime)
+        Runtime+=output.Runtime
         let ans = {
             input:testcase.input,
             expected:testcase.output,
@@ -66,6 +71,9 @@ export const worker = new Worker("judgeQueue",async(job)=>{
             result:result,
             runtime:Runtime
         },{new:true});
+        await publisher.publish("submission-update",JSON.stringify({
+            data
+        }))
     }
     else{
         try{
@@ -76,6 +84,9 @@ export const worker = new Worker("judgeQueue",async(job)=>{
                 error:error,
                 runtime:Runtime
             },{new:true});
+            await publisher.publish("submission-update",JSON.stringify({
+                data
+            }))
         }
         catch(e){
             console.log("error: ",e)

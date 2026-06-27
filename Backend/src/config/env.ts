@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-
+import {SignOptions} from "jsonwebtoken"
 dotenv.config();
 
 const env = {
@@ -7,6 +7,7 @@ const env = {
     MONGO_URI:process.env.MONGO_URI || "",
     NODE_ENV:process.env.NODE_ENV || "development",
     JWT_SECRET:process.env.JWT_SECRET || "",
+    JWT_EXPIRES_IN: (process.env.JWT_EXPIRES_IN || "1d") as SignOptions["expiresIn"],
 }
 
 export default env;

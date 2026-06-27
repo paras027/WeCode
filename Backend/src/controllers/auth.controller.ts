@@ -1,15 +1,16 @@
 import asyncHandler from "../utils/asyncHandler"; 
 import ApiError from "../utils/ApiError";
-import User from "../models/user.model";
+import User from "../models/users.model";
 import bcrypt from 'bcryptjs';
 import env from "../config/env";
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
+import { generateToken } from "../utils/jwt";
 
 export const registerUser = asyncHandler(async(req:Request,res:Response)=>{
-    const {name,email,password,role}= req.body;
-
-    if(!name || !email || !password || !role){
+    const {name,username,email,password,role}= req.body;
+    console.log(req.body)
+    if(!name || !username || !email || !password || !role){
         throw new ApiError(400,"All fields are required");
     }
 
@@ -23,14 +24,16 @@ export const registerUser = asyncHandler(async(req:Request,res:Response)=>{
     
     const user = await User.create({
         name,
+        username,
         email,
         password:hashedPassword,
         role
     })
-
+    const token = generateToken(user._id.toString(),user.role)
     res.status(201).json({
         message:"User registered successfully",
         user,
+        token,
         success:true
     })
 
@@ -55,7 +58,7 @@ export const loginUser = asyncHandler(async(req:Request,res:Response)=>{
         throw new ApiError(400,"Invalid credentials");
     }
 
-    const token = jwt.sign({id:user._id,role:user.role},env.JWT_SECRET,{expiresIn:"7d"});
+    const token = generateToken(user._id.toString(),user.role)
     res.status(200).json({
         message:"User logged in successfully",
         token,

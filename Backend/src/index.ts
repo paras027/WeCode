@@ -2,9 +2,10 @@ import express from 'express';
 import asyncHandler from './utils/asyncHandler';
 import ApiError from './utils/ApiError';
 import errorMiddleware from './middlewares/error.middleware';
-import User from './models/user.model';
+import User from './models/users.model';
 import authRoutes from './routes/auth.routes';
 import problemRoutes from './routes/problems.routes';
+import getMe from './routes/user.routes'
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,7 @@ app.get('/test',asyncHandler(async (req,res)=>{
 }));
 
 app.use("/api/v1/auth", authRoutes);
+app.use("api/v1/user",getMe)
 app.use("/api/v1/problems", problemRoutes);
 
 app.use(errorMiddleware);

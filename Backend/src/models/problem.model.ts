@@ -22,7 +22,7 @@ const testCaseSchema = new mongoose.Schema({
         required:true
     },
     isHidden:{
-        type:String,
+        type:Boolean,
         default:true
     }
 })

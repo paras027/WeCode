@@ -4,19 +4,44 @@ import { Eye, EyeOff, Code2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
+  const Navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+    signup();
   };
+
+  const data = {
+    name: name, username: username, email: email, password: password, role: role,
+  }
+
+  async function signup() {
+    console.log("coming here?")
+    try {
+
+      const val = await axios.post("http://localhost:5000/api/v1/auth/register", data,{
+        withCredentials:true
+      });
+      console.log(val);
+      Navigate("/dashboard")
+    }
+    catch (e) {
+      console.log("Error while signing up: ", e)
+    }
+
+  }
 
   const passwordStrength = () => {
     let strength = 0;
@@ -47,6 +72,19 @@ export default function Signup() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="text-sm font-medium">
+              Name
+            </label>
+            <Input
+              id="username"
+              placeholder="johndoe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1"
+              required
+            />
+          </div>
           <div>
             <label htmlFor="username" className="text-sm font-medium">
               Username
@@ -109,9 +147,8 @@ export default function Signup() {
                     {[1, 2, 3, 4].map((i) => (
                       <div
                         key={i}
-                        className={`h-1 w-8 rounded-full ${
-                          i <= strength ? 'bg-success' : 'bg-muted'
-                        }`}
+                        className={`h-1 w-8 rounded-full ${i <= strength ? 'bg-success' : 'bg-muted'
+                          }`}
                       />
                     ))}
                   </div>
@@ -140,7 +177,19 @@ export default function Signup() {
               </div>
             )}
           </div>
-
+          <div>
+            <label htmlFor="role" className="text-sm font-medium">
+              Role
+            </label>
+            <Input
+              id="role"
+              placeholder="admin/user"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="mt-1"
+              required
+            />
+          </div>
           <div className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"

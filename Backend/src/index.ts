@@ -6,11 +6,17 @@ import User from './models/users.model';
 import authRoutes from './routes/auth.routes';
 import problemRoutes from './routes/problems.routes';
 import getMe from './routes/user.routes'
+import cors from "cors"
+import cookieParser from 'cookie-parser';
 
 const app = express();
+app.use(cors({
+    origin:"*",
+    credentials:true
+}))
 app.use(express.json());
 console.log("app loaded successfully"); 
-
+app.use(cookieParser())
 app.get('/test',asyncHandler(async (req,res)=>{
     const user = await User.create({
         name:"Paras",

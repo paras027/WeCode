@@ -4,8 +4,11 @@ import { Eye, EyeOff, Code2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import axios from "axios"
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
+  const Navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,9 +17,27 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+    login()
   };
+  const data = {
+    email:email,password:password
+  }
 
+  async function login() {
+      console.log("coming here?")
+      try {
+
+        const val = await axios.post("http://localhost:5000/api/v1/auth/login", data,{
+          withCredentials:true
+        });
+        console.log(val);
+        Navigate("/dashboard")
+      }
+      catch (e) {
+        console.log("Error while signing up: ", e)
+      }
+
+    }
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-card px-4">
       <Card className="w-full max-w-md p-8">

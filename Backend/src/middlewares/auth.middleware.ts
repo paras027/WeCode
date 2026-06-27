@@ -16,13 +16,11 @@ interface JwtPayload {
 }
 
 export const isAuthenticated = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        throw new ApiError(401, "Unauthorized");
+    const token = req.cookies.token;
+    if(!token)
+    {
+        throw new ApiError(404,"UnAuthorized")
     }
-
-    const token = authHeader.split(" ")[1];
     let decoded;
     try {
         decoded = verifyToken(token) as JwtPayload;

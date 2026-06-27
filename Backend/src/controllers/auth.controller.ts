@@ -30,10 +30,11 @@ export const registerUser = asyncHandler(async(req:Request,res:Response)=>{
         role
     })
     const token = generateToken(user._id.toString(),user.role)
-    res.status(201).json({
+    res.cookie("token",token,{
+        httpOnly:true,secure:env.NODE_ENV === "development",sameSite:"lax",maxAge: Number(env.JWT_EXPIRES_IN)
+    }).status(201).json({
         message:"User registered successfully",
         user,
-        token,
         success:true
     })
 
@@ -59,9 +60,18 @@ export const loginUser = asyncHandler(async(req:Request,res:Response)=>{
     }
 
     const token = generateToken(user._id.toString(),user.role)
-    res.status(200).json({
-        message:"User logged in successfully",
-        token,
+    res.cookie("token",token,{
+        httpOnly:true,secure:env.NODE_ENV === "development",sameSite:"lax",maxAge: Number(env.JWT_EXPIRES_IN)
+    }).status(201).json({
+        message:"User Logged in successfully",
+        user,
         success:true
+    })
+})
+
+export const logout = asyncHandler(async(req:Request,res:Response)=>{
+    res.clearCookie("token").json({
+        success:true,
+        message:"Logged out successfully"
     })
 })

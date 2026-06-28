@@ -39,6 +39,7 @@ export const createProblem = asyncHandler(async (req: AuthRequest, res: Response
 
 export const getOneProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
     const id = req.params.id;
+    console.log("id: ",id)
     const problems = await Problem.findById(id)
 
     res.status(200).json({
@@ -48,10 +49,7 @@ export const getOneProblem = asyncHandler(async (req: AuthRequest, res: Response
 })
 
 export const getProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const problems = await Problem.find(
-        {
-            createdBy: req.user._id
-        })
+    const problems = await Problem.find()
 
     res.status(200).json({
         success: true,

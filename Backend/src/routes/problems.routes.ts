@@ -5,7 +5,7 @@ import {isAdmin} from '../middlewares/role.middleware';
 
 const router = express.Router();
 
-router.get("/problem",isAuthenticated, isAdmin, getProblem);
+router.get("/problem", getProblem);
 router.get("/problem/:id", getOneProblem);
 router.post("/problem",isAuthenticated, isAdmin, createProblem);
 router.put("/problem/:id",isAuthenticated, isAdmin, updateProblem);

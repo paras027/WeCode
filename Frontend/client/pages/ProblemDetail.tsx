@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { ChevronDown, Play, Send, Settings } from 'lucide-react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import axios from 'axios';
 import {
   Select,
   SelectContent,
@@ -10,42 +12,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import Editor from "@monaco-editor/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mockProblems } from '@/data/mockData';
 
-const sampleCode = `function twoSum(nums, target) {
-  const map = new Map();
-  
-  for (let i = 0; i < nums.length; i++) {
-    const complement = target - nums[i];
-    
-    if (map.has(complement)) {
-      return [map.get(complement), i];
-    }
-    map.set(nums[i], i);
-  }
-  return [];
-}`;
+
 
 const testCases = [
-  { id: 1, input: 'nums = [2,7,11,15], target = 9', expected: '[0,1]' },
-  { id: 2, input: 'nums = [3,2,4], target = 6', expected: '[1,2]' },
+  { _id: 1, input: 'nums = [2,7,11,15], target = 9', output: '[0,1]' },
 ];
 
 export default function ProblemDetail() {
+  const dummy = {
+    id: '1',
+    title: 'Two Sum',
+    difficulty: 'Easy',
+    status: 'Solved',
+    description:"asdasdsa",
+    tags: ['Array', 'Hash Table'],
+    testCases:testCases,
+    constraints:"",
+    starterCode:""
+  }
+  const id = useParams();
+  const [problem,setProblem] = useState(dummy)
   const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState(sampleCode);
+  const [code, setCode] = useState(problem.starterCode);
   const [output, setOutput] = useState('');
-  const problem = mockProblems[0];
-
   const handleRun = () => {
-    setOutput(`✓ Test case 1 passed
-✓ Test case 2 passed
-
-Runtime: 45ms
-Memory: 45.2MB`);
+    console.log(typeof(code));
   };
+  useEffect(()=>{
+    console.log("id: ",id.id)
+    getProblem();
+  },[id.id])
 
+  async function getProblem(){
+    const problem = await axios.get(`http://localhost:5000/api/v1/problems/problem/${id.id}`)
+    console.log("problemone: ",problem.data.problems)
+    setProblem(problem.data.problems)
+  }
+  console.log(problem.title);
+  const handleSubmit = () => {
+    
+  }
   return (
     <MainLayout>
       <div className="flex h-full flex-col overflow-hidden">
@@ -56,32 +66,18 @@ Memory: 45.2MB`);
               <h1 className="mb-1">{problem.title}</h1>
               <div className="flex gap-3">
                 <span
-                  className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                    problem.difficulty === 'Easy'
+                  className={`rounded-full px-2 py-1 text-xs font-semibold ${problem.difficulty === 'Easy'
                       ? 'bg-success/20 text-success'
                       : problem.difficulty === 'Medium'
-                      ? 'bg-warning/20 text-warning'
-                      : 'bg-error/20 text-error'
-                  }`}
+                        ? 'bg-warning/20 text-warning'
+                        : 'bg-error/20 text-error'
+                    }`}
                 >
                   {problem.difficulty}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {problem.acceptance.toFixed(1)}% acceptance
                 </span>
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <ChevronDown className="mr-2 h-4 w-4" />
-                Discussion
-              </Button>
-              <Button variant="outline" size="sm">
-                <ChevronDown className="mr-2 h-4 w-4" />
-                Editorial
-              </Button>
-            </div>
           </div>
         </div>
 
@@ -93,27 +89,23 @@ Memory: 45.2MB`);
               <div>
                 <h2 className="mb-3 text-lg font-semibold">Description</h2>
                 <p className="text-muted-foreground">
-                  Given an array of integers <code className="bg-secondary px-2 py-1 rounded text-foreground">nums</code> and an integer <code className="bg-secondary px-2 py-1 rounded text-foreground">target</code>, return the indices
-                  of the two numbers such that they add up to <code className="bg-secondary px-2 py-1 rounded text-foreground">target</code>.
-                </p>
-                <p className="mt-3 text-muted-foreground">
-                  You may assume that each input has exactly one solution, and you may not use the same element twice.
+                  {problem.description}
                 </p>
               </div>
 
               <div>
                 <h3 className="mb-3 font-semibold">Examples</h3>
                 <div className="space-y-3">
-                  {testCases.map((tc) => (
+                  {problem.testCases.map((tc) => (
                     <div
-                      key={tc.id}
+                      key={tc._id}
                       className="rounded-lg border border-border bg-card p-3"
                     >
                       <p className="text-sm font-mono text-muted-foreground">
-                        Input: {tc.input}
+                        Input: {JSON.stringify(tc.input)}
                       </p>
                       <p className="mt-2 text-sm font-mono text-success">
-                        Output: {tc.expected}
+                        Output: {JSON.stringify(tc.output)}
                       </p>
                     </div>
                   ))}
@@ -123,16 +115,14 @@ Memory: 45.2MB`);
               <div>
                 <h3 className="mb-3 font-semibold">Constraints</h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• 2 ≤ nums.length ≤ 10⁴</li>
-                  <li>• -10⁹ ≤ nums[i] ≤ 10⁹</li>
-                  <li>• -10⁹ ≤ target ≤ 10⁹</li>
+                  {problem.constraints}
                 </ul>
               </div>
 
               <div>
                 <h3 className="mb-3 font-semibold">Topics</h3>
                 <div className="flex flex-wrap gap-2">
-                  {problem.topics.map((topic) => (
+                  {problem.tags.map((topic) => (
                     <span
                       key={topic}
                       className="rounded-full bg-secondary/50 px-3 py-1 text-xs"
@@ -177,11 +167,13 @@ Memory: 45.2MB`);
               </div>
 
               <div className="h-full overflow-auto bg-card p-4">
-                <pre className="font-mono text-sm">
-                  <code className="text-foreground">
-                    {code}
-                  </code>
-                </pre>
+                <Editor
+                  height="100%"
+                  language={language}
+                  theme="vs-dark"
+                  value={code}
+                  onChange={(value) => setCode(value || "")}
+                />
               </div>
             </div>
 
@@ -221,14 +213,14 @@ Memory: 45.2MB`);
                 </TabsContent>
 
                 <TabsContent value="testcases" className="space-y-3 p-4">
-                  {testCases.map((tc, i) => (
-                    <Card key={tc.id} className="p-3">
+                  {problem.testCases.map((tc, i) => (
+                    <Card key={tc._id} className="p-3">
                       <p className="text-sm font-semibold">Test Case {i + 1}</p>
                       <p className="mt-2 text-xs text-muted-foreground font-mono">
-                        Input: {tc.input}
+                        Input: {JSON.stringify(tc.input)}
                       </p>
                       <p className="text-xs text-success font-mono">
-                        Expected: {tc.expected}
+                        Expected: {JSON.stringify(tc.output)}
                       </p>
                     </Card>
                   ))}

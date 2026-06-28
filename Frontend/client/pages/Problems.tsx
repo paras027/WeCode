@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Link,useNavigate } from 'react-router-dom';
 import { Search, ChevronDown } from 'lucide-react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import axios from 'axios';
 import {
   Select,
   SelectContent,
@@ -25,11 +26,24 @@ import { mockProblems } from '@/data/mockData';
 const ITEMS_PER_PAGE = 10;
 
 export default function Problems() {
+  const Navigate = useNavigate();
+  const [problems, setProblems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [difficulty, setDifficulty] = useState('All');
   const [status, setStatus] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
 
+  useEffect(() => {
+    getProblems();
+  }, [])
+  async function getProblems() {
+    const getData = await axios.get("http://localhost:5000/api/v1/problems/problem");
+    console.log("data of problems: ", getData)
+    setProblems(getData.data.problems)
+  }
+  function submit(id:string) {
+    Navigate(`/problems/${id}`)
+  }
   const filteredProblems = useMemo(() => {
     return mockProblems.filter((problem) => {
       const matchesSearch = problem.title
@@ -150,26 +164,25 @@ export default function Problems() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-10">Status</TableHead>
+                <TableHead className="hidden sm:table-cell">Status</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead className="hidden sm:table-cell">Difficulty</TableHead>
-                <TableHead className="hidden md:table-cell">Acceptance</TableHead>
-                <TableHead className="hidden lg:table-cell">Topics</TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead className="hidden sm:table-cell">Topics</TableHead>
+                <TableHead className="hidden sm:table-cell">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedProblems.length > 0 ? (
-                paginatedProblems.map((problem) => (
-                  <TableRow key={problem.id}>
-                    <TableCell className="font-semibold">
+              {problems.length > 0 ? (
+                problems.map((problem) => (
+                  <TableRow key={problem._id}>
+                    <TableCell className="hidden sm:table-cell">
                       {getStatusIcon(problem.status)}
                     </TableCell>
                     <TableCell>
                       <p className="font-medium">{problem.title}</p>
-                      <p className="text-xs text-muted-foreground">
+                      {/* <p className="text-xs text-muted-foreground">
                         {problem.submissions} submissions
-                      </p>
+                      </p> */}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <span
@@ -180,12 +193,12 @@ export default function Problems() {
                         {problem.difficulty}
                       </span>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
+                    {/* <TableCell className="hidden md:table-cell">
                       {problem.acceptance.toFixed(1)}%
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="hidden lg:table-cell">
                       <div className="flex flex-wrap gap-1">
-                        {problem.topics.slice(0, 2).map((topic) => (
+                        {problem.tags.slice(0, 2).map((topic) => (
                           <span
                             key={topic}
                             className="inline-block rounded bg-secondary/50 px-2 py-1 text-xs"
@@ -193,16 +206,17 @@ export default function Problems() {
                             {topic}
                           </span>
                         ))}
-                        {problem.topics.length > 2 && (
+                        {problem.tags.length > 2 && (
                           <span className="text-xs text-muted-foreground">
-                            +{problem.topics.length - 2}
+                            +{problem.tags.length - 2}
                           </span>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="outline" asChild>
-                        <Link to={`/problems/${problem.id}`}>Solve</Link>
+                    <TableCell className="hidden lg:table-cell">
+                      <Button size="sm" variant="outline" onClick={()=>{
+                        submit(problem._id)}}>
+                          Solve
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -219,7 +233,7 @@ export default function Problems() {
         </Card>
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {/* {totalPages > 1 && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               Page {currentPage} of {totalPages}
@@ -245,7 +259,7 @@ export default function Problems() {
               </Button>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </MainLayout>
   );

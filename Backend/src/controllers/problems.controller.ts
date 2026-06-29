@@ -104,7 +104,7 @@ export const deleteProblem = asyncHandler(async (req: AuthRequest, res: Response
 
 export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { problemId, code } = req.body;
-
+    console.log("code: ",code)
     const problem = await Problem.findById(problemId);
     if (!problem) {
         throw new ApiError(403, "problem not found");

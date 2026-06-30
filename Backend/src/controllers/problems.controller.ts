@@ -103,6 +103,7 @@ export const deleteProblem = asyncHandler(async (req: AuthRequest, res: Response
 })
 
 export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log("submit route hit",req.user)
     const { problemId, code } = req.body;
     console.log("code: ",code)
     const problem = await Problem.findById(problemId);
@@ -118,9 +119,9 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     const submission = await Submission.create({
         problemId,code,language,status:"Pending"
     })
-    await publisher.publish("submission-update",JSON.stringify(submission))
+    await publisher.publish("submission-update",JSON.stringify({submission,userId: req.user._id}))
     const job = await judgeQueue.add("submission",{
-        submissionId:submission._id
+        submissionId:submission._id, userId:req.user._id
     })
 
     return res.status(201).json({

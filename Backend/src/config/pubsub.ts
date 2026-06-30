@@ -22,7 +22,7 @@ export function setSubscriber(){
 
     subscriber.on("message",(channel,message)=>{
         const data = JSON.parse(message);
-        io.to("paras13").emit("submission-update",data);
-        console.log("sub data: ",data);
+        console.log("User id coming or not: ",data)
+        io.to(data.userId).emit("submission-update",data);
     })
 }

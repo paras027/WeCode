@@ -14,17 +14,18 @@ import {
 } from '@/components/ui/select';
 import Editor from "@monaco-editor/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import socket from '@/utils/socket';
 
 const testCases = [
   { _id: 1, input: 'nums = [2,7,11,15], target = 9', output: '[0,1]' },
 ];
 
 const STATUS_STYLES = {
-  Accepted:        { icon: CheckCircle2, color: 'text-green-500',  bg: 'bg-green-500/10',  border: 'border-green-500/20' },
-  'Wrong Answer':  { icon: XCircle,      color: 'text-red-500',    bg: 'bg-red-500/10',    border: 'border-red-500/20'   },
-  'Time Limit':    { icon: Clock,        color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20'},
-  Error:           { icon: XCircle,      color: 'text-red-400',    bg: 'bg-red-400/10',    border: 'border-red-400/20'   },
-  Pending:         { icon: Loader2,      color: 'text-blue-400',   bg: 'bg-blue-400/10',   border: 'border-blue-400/20'  },
+  Accepted: { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20' },
+  'Wrong Answer': { icon: XCircle, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+  'Time Limit': { icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+  Error: { icon: XCircle, color: 'text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20' },
+  Pending: { icon: Loader2, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
 };
 
 function StatusBadge({ status }) {
@@ -42,9 +43,8 @@ function SubmissionRow({ sub, onClick, isActive }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left rounded-lg border p-3 transition-colors hover:bg-secondary/40 ${
-        isActive ? 'border-primary/50 bg-secondary/60' : 'border-border bg-card'
-      }`}
+      className={`w-full text-left rounded-lg border p-3 transition-colors hover:bg-secondary/40 ${isActive ? 'border-primary/50 bg-secondary/60' : 'border-border bg-card'
+        }`}
     >
       <div className="flex items-center justify-between gap-2">
         <StatusBadge status={sub.status} />
@@ -62,6 +62,7 @@ function SubmissionRow({ sub, onClick, isActive }) {
 }
 
 function SubmissionDetail({ sub, onBack }) {
+  console.log("sub status: ",sub)
   return (
     <div className="flex flex-col gap-3">
       <button onClick={onBack} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 w-fit">
@@ -115,15 +116,26 @@ export default function ProblemDetail() {
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState(dummy.starterCode);
   const [output, setOutput] = useState('');
-  const [submissions, setSubmissions] = useState([]);
+  const [submissions, setSubmissions] = useState({});
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [activeSubmission, setActiveSubmission] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('output');
 
   useEffect(() => {
+    socket.connect();
     getProblem();
     fetchSubmissions();
+    socket.on("submission-update", (data) => {
+      console.log("Received:", data);
+      setSubmissions(data.data);
+      setActiveTab('submissions');
+      setActiveSubmission(data.data);
+      setLoadingSubmissions(false);
+    });
+    return () => {
+      socket.disconnect();
+    }
   }, [id.id]);
 
   async function getProblem() {
@@ -138,15 +150,15 @@ export default function ProblemDetail() {
 
   async function fetchSubmissions() {
     setLoadingSubmissions(true);
-    try {
-      const res = await axios.get(`http://localhost:5000/api/v1/problems/submissions/${id.id}`);
-      setSubmissions(res.data.submissions || []);
-    } catch (e) {
-      // If endpoint not ready yet, fallback to empty
-      setSubmissions([]);
-    } finally {
-      setLoadingSubmissions(false);
-    }
+    // try {
+    //   const res = await axios.get(`http://localhost:5000/api/v1/problems/submissions/${id.id}`);
+    //   setSubmissions(res.data.submissions || []);
+    // } catch (e) {
+    //   // If endpoint not ready yet, fallback to empty
+    //   setSubmissions([]);
+    // } finally {
+    //   setLoadingSubmissions(false);
+    // }
   }
 
   const handleRun = () => {
@@ -156,11 +168,14 @@ export default function ProblemDetail() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/v1/problems/submit/', {
+      const res = await axios.post('http://localhost:5000/api/v1/problems/submit', {
         code,
         problemId: id.id,
         language,
-      });
+      },
+        {
+          withCredentials: true,
+        });
       // Optimistically add the new submission to the top
       const newSub = res.data.submission || {
         _id: Date.now(),
@@ -172,7 +187,7 @@ export default function ProblemDetail() {
         errorMessage: res.data.errorMessage || null,
         submittedAt: new Date().toLocaleString(),
       };
-      setSubmissions((prev) => [newSub, ...prev]);
+      setSubmissions(newSub);
       setActiveTab('submissions');
       setActiveSubmission(newSub);
     } catch (e) {
@@ -192,13 +207,12 @@ export default function ProblemDetail() {
               <h1 className="mb-1">{problem.title}</h1>
               <div className="flex gap-3">
                 <span
-                  className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                    problem.difficulty === 'Easy'
-                      ? 'bg-success/20 text-success'
-                      : problem.difficulty === 'Medium'
+                  className={`rounded-full px-2 py-1 text-xs font-semibold ${problem.difficulty === 'Easy'
+                    ? 'bg-success/20 text-success'
+                    : problem.difficulty === 'Medium'
                       ? 'bg-warning/20 text-warning'
                       : 'bg-error/20 text-error'
-                  }`}
+                    }`}
                 >
                   {problem.difficulty}
                 </span>
@@ -305,11 +319,7 @@ export default function ProblemDetail() {
                       className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
                     >
                       Submissions
-                      {submissions.length > 0 && (
-                        <span className="ml-1.5 rounded-full bg-primary/20 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
-                          {submissions.length}
-                        </span>
-                      )}
+
                     </TabsTrigger>
                   </TabsList>
 
@@ -353,26 +363,25 @@ export default function ProblemDetail() {
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Loading submissions…
                     </div>
-                  ) : submissions.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
-                      <p className="text-sm text-muted-foreground">No submissions yet.</p>
-                      <p className="text-xs text-muted-foreground">Write your solution and hit Submit.</p>
-                    </div>
                   ) : activeSubmission ? (
                     <SubmissionDetail
                       sub={activeSubmission}
                       onBack={() => setActiveSubmission(null)}
                     />
-                  ) : (
+                  ) : submissions ? (
                     <div className="flex flex-col gap-2">
-                      {submissions.map((sub) => (
-                        <SubmissionRow
-                          key={sub._id}
-                          sub={sub}
-                          isActive={false}
-                          onClick={() => setActiveSubmission(sub)}
-                        />
-                      ))}
+                      <SubmissionRow
+                        sub={submissions}
+                        isActive={false}
+                        onClick={() => setActiveSubmission(submissions)}
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+                      <p className="text-sm text-muted-foreground">No submissions yet.</p>
+                      <p className="text-xs text-muted-foreground">
+                        Write your solution and hit Submit.
+                      </p>
                     </div>
                   )}
                 </TabsContent>

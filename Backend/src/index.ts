@@ -11,7 +11,7 @@ import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(cors({
-    origin:"*",
+    origin:"http://localhost:8080",
     credentials:true
 }))
 app.use(express.json());
@@ -28,7 +28,7 @@ app.get('/test',asyncHandler(async (req,res)=>{
 }));
 
 app.use("/api/v1/auth", authRoutes);
-app.use("api/v1/user",getMe)
+app.use("/api/v1/user",getMe)
 app.use("/api/v1/problems", problemRoutes);
 
 app.use(errorMiddleware);

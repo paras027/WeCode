@@ -23,12 +23,12 @@ export const isAuthenticated = asyncHandler(async (req: AuthRequest, res: Respon
     }
     let decoded;
     try {
-        decoded = verifyToken(token) as JwtPayload;
+        decoded = verifyToken(token)
     } catch (err) {
         throw new ApiError(401, "Invalid or expired token");
     }
-
-    const user = await User.findById(decoded.id).select("-password");
+    console.log("Decoded: ",decoded)
+    const user = await User.findById(decoded.userId).select("-password");
     if (!user) {
         throw new ApiError(404, "User not found");
     }

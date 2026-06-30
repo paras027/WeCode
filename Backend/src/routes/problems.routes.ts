@@ -10,6 +10,6 @@ router.get("/problem/:id", getOneProblem);
 router.post("/problem",isAuthenticated, isAdmin, createProblem);
 router.put("/problem/:id",isAuthenticated, isAdmin, updateProblem);
 router.delete("/problem/:id",isAuthenticated, isAdmin, deleteProblem);
-router.post("/submit",submitCode)
+router.post("/submit",isAuthenticated, submitCode)
 
 export default router;

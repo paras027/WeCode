@@ -40,7 +40,7 @@ export default function Signup() {
     catch (e) {
       console.log("Error while signing up: ", e)
     }
-
+    setIsLoading(false)
   }
 
   const passwordStrength = () => {

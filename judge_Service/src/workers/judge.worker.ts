@@ -7,6 +7,7 @@ import { publisher } from "../config/pubsub";
 
 export const worker = new Worker("judgeQueue",async(job)=>{
     // console.log(" got the job here",job)
+    console.log("Job user id----------------------: ",job.data.userId)
     const data = await Submission.findByIdAndUpdate(job.data.submissionId,{
         status:"Running"
     },{new:true});
@@ -15,7 +16,7 @@ export const worker = new Worker("judgeQueue",async(job)=>{
         console.log("Got nthing")
     }
     await publisher.publish("submission-update",JSON.stringify({
-            data
+            data,userId:job.data.userId
     }))
     const probId = data?.problemId;
     const problem = await Problem.findById(probId)
@@ -27,7 +28,6 @@ export const worker = new Worker("judgeQueue",async(job)=>{
     let Runtime = 0;
     for(const testcase of testcases){
         const output = await submissionService(code,testcase.input);
-        console.log("output of the result ",output);
         if(output.message == "Compilation Error")
         {
             verdict = "Compilation Error"
@@ -46,7 +46,6 @@ export const worker = new Worker("judgeQueue",async(job)=>{
             error = output.output
             break;
         }
-        console.log("Runtime: ",output.Runtime)
         Runtime+=output.Runtime
         let ans = {
             input:testcase.input,
@@ -72,7 +71,7 @@ export const worker = new Worker("judgeQueue",async(job)=>{
             runtime:Runtime
         },{new:true});
         await publisher.publish("submission-update",JSON.stringify({
-            data
+            data,userId:job.data.userId
         }))
     }
     else{
@@ -85,7 +84,7 @@ export const worker = new Worker("judgeQueue",async(job)=>{
                 runtime:Runtime
             },{new:true});
             await publisher.publish("submission-update",JSON.stringify({
-                data
+                data,userId:job.data.userId
             }))
         }
         catch(e){

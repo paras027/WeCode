@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { generateToken } from "../utils/jwt";
 
+
 export const registerUser = asyncHandler(async(req:Request,res:Response)=>{
     const {name,username,email,password,role}= req.body;
     console.log(req.body)
@@ -29,15 +30,17 @@ export const registerUser = asyncHandler(async(req:Request,res:Response)=>{
         password:hashedPassword,
         role
     })
+       
     const token = generateToken(user._id.toString(),user.role)
+
     res.cookie("token",token,{
-        httpOnly:true,secure:env.NODE_ENV === "development",sameSite:"lax",maxAge: Number(env.JWT_EXPIRES_IN)
+        httpOnly:true,secure:env.NODE_ENV === "production",sameSite:"lax",maxAge: 7 * 24 * 60 * 60 * 1000
     }).status(201).json({
         message:"User registered successfully",
         user,
         success:true
     })
-
+     console.log("worked")
 })
 
 export const loginUser = asyncHandler(async(req:Request,res:Response)=>{

@@ -21,10 +21,11 @@ const testCases = [
 ];
 
 const STATUS_STYLES = {
-  Accepted: { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20' },
+  "Passed": { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20' },
   'Wrong Answer': { icon: XCircle, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
-  'Time Limit': { icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+  'Time Limit Exceeded': { icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
   Error: { icon: XCircle, color: 'text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20' },
+  'Compilation Error': { icon: XCircle, color: 'text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20' },
   Pending: { icon: Loader2, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
 };
 
@@ -68,21 +69,32 @@ function SubmissionDetail({ sub, onBack }) {
       <button onClick={onBack} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 w-fit">
         ← Back to all submissions
       </button>
-      <div className={`rounded-lg border p-4 ${STATUS_STYLES[sub.status]?.bg || ''} ${STATUS_STYLES[sub.status]?.border || 'border-border'}`}>
+      <div className={`rounded-lg border p-4 ${STATUS_STYLES[sub.verdict]?.bg || ''} ${STATUS_STYLES[sub.verdict]?.border || 'border-border'}`}>
         <div className="flex items-center justify-between mb-1">
-          <StatusBadge status={sub.status} />
+          <StatusBadge status={sub.verdict} />
           <span className="text-xs text-muted-foreground">{sub.submittedAt}</span>
         </div>
-        {sub.status === 'Accepted' && (
+        {sub.verdict === 'Passed' && (
           <div className="mt-2 flex gap-6 text-sm">
             <div><span className="text-muted-foreground">Runtime</span><p className="font-semibold text-foreground">{sub.runtime}</p></div>
             <div><span className="text-muted-foreground">Memory</span><p className="font-semibold text-foreground">{sub.memory}</p></div>
             <div><span className="text-muted-foreground">Language</span><p className="font-semibold text-foreground">{sub.language}</p></div>
           </div>
         )}
-        {sub.errorMessage && (
-          <pre className="mt-2 text-xs text-red-400 whitespace-pre-wrap font-mono">{sub.errorMessage}</pre>
+        {sub.verdict !== "Time Limit Exceeded" && sub.error && (
+          <pre className="mt-2 text-xs text-red-400 whitespace-pre-wrap font-mono">{sub.error}</pre>
         )}
+      <div className="mt-2 flex flex-col gap-6 text-sm">
+
+        {sub.result.map((res,index)=>{
+          return <div key={index} className='flex space-x-2'>
+            <div><span className="text-muted-foreground">Input</span><p className="font-semibold text-foreground">{JSON.stringify(res.input)}</p></div>
+            <div><span className="text-muted-foreground">Expected</span><p className="font-semibold text-foreground">{res.expected}</p></div>
+            <div><span className="text-muted-foreground">Your Output</span><p className="font-semibold text-foreground">{res.output}</p></div>
+          </div>
+        })}
+        
+     </div>
       </div>
       <div className="rounded-lg border border-border overflow-hidden">
         <div className="bg-card px-3 py-2 text-xs text-muted-foreground border-b border-border">Submitted Code · {sub.language}</div>
@@ -177,19 +189,6 @@ export default function ProblemDetail() {
           withCredentials: true,
         });
       // Optimistically add the new submission to the top
-      const newSub = res.data.submission || {
-        _id: Date.now(),
-        status: res.data.status || 'Pending',
-        language,
-        code,
-        runtime: res.data.runtime || null,
-        memory: res.data.memory || null,
-        errorMessage: res.data.errorMessage || null,
-        submittedAt: new Date().toLocaleString(),
-      };
-      setSubmissions(newSub);
-      setActiveTab('submissions');
-      setActiveSubmission(newSub);
     } catch (e) {
       console.error(e);
     } finally {

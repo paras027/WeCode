@@ -1,100 +1,52 @@
-import {Worker} from "bullmq"
-import {connectRedis} from "../config/redis"
+import { Worker } from "bullmq"
+import { connectRedis } from "../config/redis"
 import { submissionService } from "../services/compiler/submission.services.";
 import Submission from "../models/submission.model";
 import Problem from "../models/problem.model";
 import { publisher } from "../config/pubsub";
 
-export const worker = new Worker("judgeQueue",async(job)=>{
+export const worker = new Worker("judgeQueue", async (job) => {
     // console.log(" got the job here",job)
-    console.log("Job user id----------------------: ",job.data.userId)
-    const data = await Submission.findByIdAndUpdate(job.data.submissionId,{
-        status:"Running"
-    },{new:true});
-    if(!data)
-    {
-        console.log("Got nthing")
+    console.log("Job user id----------------------: ", job.data.userId)
+    const data = await Submission.findByIdAndUpdate(job.data.submissionId, {
+        status: "Running"
+    }, { new: true });
+    if (!data) {
+        console.error("Submission not found:", job.data.submissionId);
+        return;
     }
-    await publisher.publish("submission-update",JSON.stringify({
-            data,userId:job.data.userId
+    await publisher.publish("submission-update", JSON.stringify({
+        data, userId: job.data.userId
     }))
-    const probId = data?.problemId;
+    const probId = data.problemId;
     const problem = await Problem.findById(probId)
     let testcases = problem?.testCases || [];
-    const code = data!.code as string
-    let verdict = ""
-    let error = ""
-    let result = []
+    const code = data.code as string
+
     let Runtime = 0;
-    for(const testcase of testcases){
-        const output = await submissionService(code,testcase.input);
-        if(output.message == "Compilation Error")
-        {
-            verdict = "Compilation Error"
-            error = output.output
-            break;
-        }
-        if(output.message == "Runtime Error")
-        {
-            verdict = "Runtime Error"
-            error = output.output
-            break;
-        }
-        if(output.message == "TLE")
-        {
-            verdict = "Time Limit Exceeded"
-            error = output.output
-            break;
-        }
-        Runtime+=output.Runtime
-        let ans = {
-            input:testcase.input,
-            expected:testcase.output,
-            output:output.output,
-            passed:testcase.output.trim() === output.output.trim()
-        }
-        if(ans.passed===false)
-        {
-            verdict = "Wrong Answer"
-            result.push(ans);
-            break;
-        }
-        result.push(ans);
-    }
-    if(verdict==="")
+    console.log(typeof (testcases));
+    const output = await submissionService(code, testcases, data.language!);
+    console.log("Value checking: ",output)
+    if(!output)
     {
-        verdict = "Passed"
-        const data = await Submission.findByIdAndUpdate(job.data.submissionId,{
-            status:"Accepted",
-            verdict:"Passed",
-            result:result,
-            runtime:Runtime
-        },{new:true});
-        await publisher.publish("submission-update",JSON.stringify({
-            data,userId:job.data.userId
-        }))
+        console.log("Nothing came out of the execution")
+        return
     }
-    else{
-        try{
-            const data = await Submission.findByIdAndUpdate(job.data.submissionId,{
-                status:"Accepted",
-                verdict:verdict,
-                result:result,
-                error:error,
-                runtime:Runtime
-            },{new:true});
-            await publisher.publish("submission-update",JSON.stringify({
-                data,userId:job.data.userId
-            }))
-        }
-        catch(e){
-            console.log("error: ",e)
-        }
-        
-    }
+    console.log("Value checking: ",output)
+    const newdata = await Submission.findByIdAndUpdate(job.data.submissionId, {
+                    verdict: output.verdict,
+                    error: output.error,
+                    runtime: output.runtime,
+                    result:output.result,
+                    status:"Accepted"
+                }, { new: true });
+                console.log("new data: ",newdata)
+                await publisher.publish("submission-update", JSON.stringify({
+                    newdata, userId: job.data.userId
+                }))
 },
-{
-    connection:connectRedis
-})
+    {
+        connection: connectRedis
+    })
 
 console.log("worker started")

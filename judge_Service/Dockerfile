@@ -1,7 +1,13 @@
-FROM ubuntu
+FROM ubuntu:22.04
 
-RUN apt update
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt install -y g++
-
-RUN ["bash"]
+RUN apt-get update && \
+    apt-get install -y \
+    g++ \
+    python3 \
+    default-jdk \
+    nodejs \
+    npm && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*

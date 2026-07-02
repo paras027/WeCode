@@ -104,7 +104,7 @@ export const deleteProblem = asyncHandler(async (req: AuthRequest, res: Response
 
 export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) => {
     console.log("submit route hit",req.user)
-    const { problemId, code } = req.body;
+    const { problemId, code,language } = req.body;
     console.log("code: ",code)
     const problem = await Problem.findById(problemId);
     if (!problem) {
@@ -114,7 +114,6 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     if (testcases.length === 0) {
         throw new ApiError(403, "testcases not found");
     }
-    const language = "cpp"
 
     const submission = await Submission.create({
         problemId,code,language,status:"Pending"

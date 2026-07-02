@@ -140,9 +140,9 @@ export default function ProblemDetail() {
     fetchSubmissions();
     socket.on("submission-update", (data) => {
       console.log("Received:", data);
-      setSubmissions(data.data);
+      setSubmissions(data.newdata);
       setActiveTab('submissions');
-      setActiveSubmission(data.data);
+      setActiveSubmission(data.newdata);
       setLoadingSubmissions(false);
     });
     return () => {

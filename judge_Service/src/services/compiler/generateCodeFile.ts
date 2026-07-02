@@ -11,9 +11,9 @@ if(!fs.existsSync(folderPath))
     })
 }
 
-export function generateCppFile(code:string){
+export function generateCodeFile(code:string,extension:string){
     const codeId = uuid();
-    const fileName = `${codeId}.cpp`;
+    const fileName = `${codeId}.${extension}`;
     const filePath = path.join(folderPath,fileName);
 
     fs.writeFileSync(

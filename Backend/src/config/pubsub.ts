@@ -19,10 +19,25 @@ export function setSubscriber(){
         }
         console.log("Subscribed")
     })
+    subscriber.subscribe("run-update",(err)=>{
+        if(err)
+        {
+            console.log("error: ",err);
+            return;
+        }
+        console.log("Subscribed")
+    })
 
     subscriber.on("message",(channel,message)=>{
         const data = JSON.parse(message);
         console.log("User id coming or not: ",data)
-        io.to(data.userId).emit("submission-update",data);
+        if(channel === "submission-update")
+        {
+            io.to(data.userId).emit("submission-update",data);
+        }
+        else
+        {
+            io.to(data.userId).emit("run-update",data);
+        }
     })
 }

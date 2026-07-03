@@ -1,65 +1,139 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema, Types, Model } from "mongoose";
 
-const exampleSchema = new mongoose.Schema({
-    input:{
-        type:String,
+export interface IExample {
+    input: string;
+    output: string;
+    explanation?: string;
+}
+
+export interface ITestCase {
+    input: Record<string, unknown> | string | number | boolean | unknown[];
+    output: Record<string, unknown> | string | number | boolean | unknown[];
+    isHidden: boolean;
+}
+
+export interface IStarterCode {
+    cpp: string;
+    python: string;
+    javascript: string;
+    java: string;
+}
+
+export interface IProblem extends Document {
+    title: string;
+    description: string;
+    difficulty: "easy" | "medium" | "hard";
+
+    tags: string[];
+
+    testCases: Types.DocumentArray<ITestCase>;
+
+    examples: Types.DocumentArray<IExample>;
+
+    starterCode: IStarterCode;
+
+    timeLimit: number;
+
+    memoryLimit: number;
+
+    constraints?: string;
+
+    createdBy: Types.ObjectId;
+
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const exampleSchema = new Schema<IExample>({
+    input: String,
+    output: String,
+    explanation: String
+});
+
+const testCaseSchema = new Schema<ITestCase>({
+    input: {
+        type: Schema.Types.Mixed,
+        required: true
     },
-    output:{
-        type:String,
+    output: {
+        type: Schema.Types.Mixed,
+        required: true
     },
-    explanation:{
-        type:String,
+    isHidden: {
+        type: Boolean,
+        default: true
     }
-})
+});
 
-const testCaseSchema = new mongoose.Schema({
-    input:{
-        type:mongoose.Schema.Types.Mixed,
-        required:true
-    },
-    output:{
-        type:mongoose.Schema.Types.Mixed,
-        required:true
-    },
-    isHidden:{
-        type:String,
-        default:true
-    }
-})
-
-const problemSchema = new mongoose.Schema({
+const problemSchema = new Schema<IProblem>(
+{
     title:{
         type:String,
         required:true
     },
+
     description:{
         type:String,
         required:true
     },
+
     difficulty:{
         type:String,
         enum:["easy","medium","hard"],
         required:true
     },
+
     tags:[String],
+
     testCases:[testCaseSchema],
+
     examples:[exampleSchema],
-     starterCode: {
-      type: String,
+
+    starterCode:{
+        cpp:{
+            type:String,
+            default:""
+        },
+        python:{
+            type:String,
+            default:""
+        },
+        javascript:{
+            type:String,
+            default:""
+        },
+        java:{
+            type:String,
+            default:""
+        }
     },
-    constraints:{
-        type:String,
+
+    timeLimit:{
+        type:Number,
+        default:2000
     },
+
+    memoryLimit:{
+        type:Number,
+        default:256
+    },
+
+    constraints:String,
+
     createdBy:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:Schema.Types.ObjectId,
         ref:"User",
         required:true
     }
-    },{
-    timestamps:true
-    }
-);
 
-const Problem = mongoose.model("Problem", problemSchema);
+},
+{
+    timestamps:true
+});
+
+const Problem = mongoose.model<IProblem>(
+    "Problem",
+    problemSchema
+);
 
 export default Problem;

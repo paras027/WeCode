@@ -7,6 +7,7 @@ import axios from "axios"
 import { judgeQueue } from '../queue/judge.queue';
 import Submission from '../models/submission.model';
 import { publisher } from '../config/pubsub';
+import { runQueue } from '../queue/run.queue';
 
 
 export const createProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -99,6 +100,32 @@ export const deleteProblem = asyncHandler(async (req: AuthRequest, res: Response
     res.status(200).json({
         success: true,
         message: "Problem deleted successfully"
+    })
+})
+
+export const runCode = asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log("run route hit",req.user)
+    const { problemId, code, language } = req.body;
+    console.log("code: ",code)
+
+    const problem = await Problem.findById(problemId);
+
+    if (!problem) {
+        throw new ApiError(403, "problem not found");
+    }
+
+    const testcases = problem.examples;
+    if (testcases.length === 0) {
+        throw new ApiError(403, "testcases not found");
+    }
+
+    await publisher.publish("run-update",JSON.stringify({userId: req.user._id}))
+    const job = await runQueue.add("run",{
+        problem:problemId,code:code,language:language, userId:req.user._id
+    })
+
+    return res.status(201).json({
+        message:"Submitted"
     })
 })
 

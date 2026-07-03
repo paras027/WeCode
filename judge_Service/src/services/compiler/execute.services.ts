@@ -18,8 +18,8 @@ export async function executeCode(filePath: string, testcases: any, language: st
     let folderPath = path.dirname(filePath);
     let fileName = path.basename(filePath);
     let file = path.parse(fileName).name
-    let compileCom = `docker run --rm -v "${folderPath}:/app/temp" judge-image bash -c "g++ /app/temp/${fileName} -o /app/temp/${file}.exe"`
-    compileCom = compileCommand(language, folderPath, fileName);
+    let compileCom = ``
+    compileCom = compileCommand(language, folderPath, fileName,memoryLimit);
     let ans;
     let runResult = [];
     const inputFiles: string[] = [];

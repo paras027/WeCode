@@ -131,7 +131,7 @@ const problemSchema = new Schema<IProblem>(
     timestamps:true
 });
 
-const Problem = mongoose.model<IProblem, Model<IProblem>>(
+const Problem = mongoose.model<IProblem>(
     "Problem",
     problemSchema
 );

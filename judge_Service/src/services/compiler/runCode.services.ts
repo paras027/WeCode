@@ -1,12 +1,12 @@
 import {exec} from "child_process"
 
-export function runCode(com:string){
+export function runCode(com:string, timeLimit:number){
 
     return new Promise((resolve,reject)=>{
 
         const start = Date.now();
 
-        exec(com, { timeout: 5000 }, (err, stdout, stderr) => {
+        exec(com, { timeout: timeLimit }, (err, stdout, stderr) => {
             const end = Date.now() - start;
             if (stderr) {
                 console.log(stderr);

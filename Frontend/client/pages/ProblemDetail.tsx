@@ -154,7 +154,7 @@ export default function ProblemDetail() {
     try {
       const res = await axios.get(`http://localhost:5000/api/v1/problems/problem/${id.id}`);
       setProblem(res.data.problems);
-      setCode(res.data.problems.starterCode || '');
+      setCode(res.data.problems.starterCode?.[language] || '');
     } catch (e) {
       console.error(e);
     }

@@ -13,7 +13,7 @@ if(!fs.existsSync(folderPath))
 
 export function generateCodeFile(code:string,extension:string){
     const codeId = uuid();
-    const fileName = `${codeId}.${extension}`;
+    const fileName = extension === "java"?"Main.java":`${codeId}.${extension}`;
     const filePath = path.join(folderPath,fileName);
 
     fs.writeFileSync(

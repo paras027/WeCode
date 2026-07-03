@@ -20,30 +20,33 @@ export const worker = new Worker("judgeQueue", async (job) => {
     }))
     const probId = data.problemId;
     const problem = await Problem.findById(probId)
+    if (!problem) {
+        console.log("Problem not found");
+        return;
+    }
     let testcases = problem?.testCases || [];
     const code = data.code as string
-
+    console.log("Time Limit of the problem: ",problem)
     let Runtime = 0;
     console.log(typeof (testcases));
-    const output = await submissionService(code, testcases, data.language!);
-    console.log("Value checking: ",output)
-    if(!output)
-    {
+    const output = await submissionService(code, testcases, data.language!, problem.timeLimit, problem.memoryLimit);
+    console.log("Value checking: ", output)
+    if (!output) {
         console.log("Nothing came out of the execution")
         return
     }
-    console.log("Value checking: ",output)
+    console.log("Value checking: ", output)
     const newdata = await Submission.findByIdAndUpdate(job.data.submissionId, {
-                    verdict: output.verdict,
-                    error: output.error,
-                    runtime: output.runtime,
-                    result:output.result,
-                    status:"Accepted"
-                }, { new: true });
-                console.log("new data: ",newdata)
-                await publisher.publish("submission-update", JSON.stringify({
-                    newdata, userId: job.data.userId
-                }))
+        verdict: output.verdict,
+        error: output.error,
+        runtime: output.runtime,
+        result: output.result,
+        status: "Accepted"
+    }, { new: true });
+    console.log("new data: ", newdata)
+    await publisher.publish("submission-update", JSON.stringify({
+        newdata, userId: job.data.userId
+    }))
 },
     {
         connection: connectRedis

@@ -8,6 +8,9 @@ RUN apt-get update && \
     python3 \
     nodejs \
     npm \
-    default-jdk && \
+    default-jdk \
+    time && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+CMD ["bash"]

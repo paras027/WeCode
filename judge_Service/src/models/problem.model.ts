@@ -52,11 +52,11 @@ const exampleSchema = new Schema<IExample>({
 
 const testCaseSchema = new Schema<ITestCase>({
     input: {
-        type: Schema.Types.Mixed,
+        type: String,
         required: true
     },
     output: {
-        type: Schema.Types.Mixed,
+        type: String,
         required: true
     },
     isHidden: {

@@ -1,27 +1,101 @@
-import {exec} from "child_process"
+import { exec } from "child_process";
 
-export function runCode(com:string, timeLimit:number){
+export function runCode(command: string) {
+    return new Promise((resolve) => {
 
-    return new Promise((resolve,reject)=>{
+        exec(command, (err, stdout, stderr) => {
 
-        const start = Date.now();
-
-        exec(com, { timeout: timeLimit }, (err, stdout, stderr) => {
-            const end = Date.now() - start;
-            if (stderr) {
-                console.log(stderr);
-                resolve({ message: "Runtime Error", output: stderr,Runtime: end });
-
-                return
-            }
+            // ---------------- Runtime Errors ----------------
             if (err) {
-                if (err.killed) {
-                    resolve({ message: "TLE", output: err,Runtime: end});
+
+                const code = (err as any).code;
+
+                switch (code) {
+
+                    // timeout command
+                    case 124:
+                        resolve({
+                            message: "TLE",
+                            output: ""
+                        });
+                        return;
+
+                    // Docker OOM Kill
+                    case 137:
+                        resolve({
+                            message: "Memory Limit Exceeded",
+                            output: "Memory Limit Exceeded"
+                        });
+                        return;
+
+                    // SIGFPE
+                    case 136:
+                        resolve({
+                            message: "Runtime Error",
+                            output: "Floating Point Exception"
+                        });
+                        return;
+
+                    // SIGSEGV
+                    case 139:
+                        resolve({
+                            message: "Runtime Error",
+                            output: "Segmentation Fault"
+                        });
+                        return;
+
+                    // SIGABRT
+                    case 134:
+                        resolve({
+                            message: "Runtime Error",
+                            output: "Program Aborted"
+                        });
+                        return;
+
+                    // SIGILL
+                    case 132:
+                        resolve({
+                            message: "Runtime Error",
+                            output: "Illegal Instruction"
+                        });
+                        return;
+                }
+
+                // Python / Java / Node runtime exceptions
+                if (stderr.trim().length > 0) {
+                    resolve({
+                        message: "Runtime Error",
+                        output: stderr.trim()
+                    });
                     return;
                 }
+
+                // Example:
+                // return 1;
+                // return 42;
+                // These are NOT runtime errors.
+                resolve({
+                    message: "Accepted",
+                    output: stdout
+                });
+                return;
             }
 
-            resolve({ message: "Accepted", output: stdout,Runtime: end });
-        })
-    })
+            // Some interpreters write errors only to stderr
+            if (stderr.trim().length > 0) {
+                resolve({
+                    message: "Runtime Error",
+                    output: stderr.trim()
+                });
+                return;
+            }
+
+            resolve({
+                message: "Accepted",
+                output: stdout
+            });
+
+        });
+
+    });
 }

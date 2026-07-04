@@ -1053,7 +1053,7 @@ function SubmitResult({ sub, onClear }) {
         { sub.result?.map((res, i) => (
           <CaseCard key={i} res={res} index={i} passed={res.output === res.expected} />
         ))}
-      </div>}
+      </div>}  
     </div>
   );
 }

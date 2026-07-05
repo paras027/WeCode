@@ -4,6 +4,10 @@ import path from "path"
 export function cleanupFiles(language:string,folderPath:string,filePath:string,inputFiles:string[]){
     let fileName = path.basename(filePath);
     let file = path.parse(fileName).name
+     const statsFile = path.join(folderPath, `${file}_stats.txt`);
+    if (fs.existsSync(statsFile)) {
+        fs.unlinkSync(statsFile);
+    }
     if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
 

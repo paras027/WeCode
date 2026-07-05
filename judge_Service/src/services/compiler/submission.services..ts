@@ -2,7 +2,7 @@ import { generateCodeFile } from "./generateCodeFile";
 import { executeCode } from "./execute.services";
 import { generateInputFile } from "./generateInputFile";
 
-export async function submissionService(code: string, testcases: any, language: string, timeLimit:number,memoryLimit:number) {
+export async function submissionService(code: string, testcases: any, language: string, timeLimit: number, memoryLimit: number) {
 
     let extension = ""
     switch (language) {
@@ -20,27 +20,38 @@ export async function submissionService(code: string, testcases: any, language: 
     }
     let path: string = generateCodeFile(code, extension)
     // let inputPath: string = generateInputFile(input);
-    let output = await executeCode(path, testcases, language,timeLimit,memoryLimit);
-    console.log("Outpiut: ",output)
+    let output = await executeCode(path, testcases, language, timeLimit, memoryLimit);
+    console.log("Outpiut: ", output)
     let verdict
     let result: any = [];
-    let runtime = output.runtime
     if (output.result[0].message === "Compilation Error") {
         return {
             verdict: "Compilation Error",
             error: output.result[0].output,
-            runtime: runtime,
+            runtime: output.runtime,
+            memory: output.memory,
             result: result
         }
 
     }
     else {
         for (const res of output.result) {
+            if(res.message === "Memory Limit Exceeded")
+            {
+                return {
+                    verdict: "Memory Limit Exceeded",
+                    error: res.output,
+                    runtime: output.runtime,
+                    memory: output.memory,
+                    result: result
+                }
+            }
             if (res.message === "Runtime Error") {
                 return {
                     verdict: "Runtime Error",
                     error: res.output,
-                    runtime: runtime,
+                    runtime: output.runtime,
+                    memory: output.memory,
                     result: result
                 }
             }
@@ -50,7 +61,8 @@ export async function submissionService(code: string, testcases: any, language: 
                     verdict: "TLE",
                     result: result,
                     error: '',
-                    runtime: runtime
+                    runtime: output.runtime,
+                    memory: output.memory,
                 }
 
             }
@@ -72,8 +84,9 @@ export async function submissionService(code: string, testcases: any, language: 
             return {
                 verdict: "Passed",
                 result: result,
-                runtime: runtime,
-                error:""
+                runtime: output.runtime,
+                memory: output.memory,
+                error: ""
             }
         }
     }

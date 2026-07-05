@@ -1199,7 +1199,6 @@ export default function ProblemDetail() {
     socket.on('submission-update', (data) => {
       console.log('Received:', data);
       const sub = data.newdata;
-      setSubmissionHistory((prev) => [sub, ...prev]);
       setLatestSubmitResult(sub);
       setConsoleTab('output');
       setLoadingSubmissions(false);
@@ -1230,9 +1229,13 @@ export default function ProblemDetail() {
   async function fetchSubmissions() {
     setLoadingSubmissions(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/v1/problems/submissions/${id.id}`);
+      const res = await axios.get(`http://localhost:5000/api/v1/problems/submissions/${id.id}`,
+        {
+          withCredentials:true
+        }
+      );
       console.log("fetched: ",res.data)
-      setSubmissionHistory(res.data.submissions || []);
+      setSubmissionHistory(res.data.submission || []);
     } catch (e) {
       console.log(e);
       setSubmissionHistory([]);

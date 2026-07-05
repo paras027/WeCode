@@ -50,6 +50,7 @@ export const getOneProblem = asyncHandler(async (req: AuthRequest, res: Response
 })
 
 export const getProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log("this works fine")
     const problems = await Problem.find()
 
     res.status(200).json({
@@ -159,8 +160,8 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
 export const submissions = asyncHandler(async (req: AuthRequest, res: Response) => {
     console.log("submit route hit",req.user)
     const id = req.user._id;
-    const { problemId, code,language } = req.body;
-    console.log("code: ",code)
+    const problemId = req.params.id;
+    console.log("id: ",id)
     const problem = await Problem.findById(problemId);
     if (!problem) {
         throw new ApiError(403, "problem not found");

@@ -9,6 +9,7 @@ export const worker = new Worker("judgeQueue", async (job) => {
     // console.log(" got the job here",job)
     console.log("Job user id----------------------: ", job.data.userId)
     const data = await Submission.findByIdAndUpdate(job.data.submissionId, {
+        userId:job.data.userId,
         status: "Running"
     }, { new: true });
     if (!data) {
@@ -39,6 +40,7 @@ export const worker = new Worker("judgeQueue", async (job) => {
         verdict: output.verdict,
         error: output.error,
         runtime: output.runtime,
+        memory:output.memory,
         result: output.result,
         status: "Accepted"
     }, { new: true });

@@ -11,14 +11,12 @@ if(!fs.existsSync(folderPath))
     })
 }
 
-export function generateInputFile(inputText:object){
+export function generateInputFile(inputText:string){
     const codeId = uuid();
     const fileName = `${codeId}.txt`;
     const filePath = path.join(folderPath,fileName);
-    const inputVal =
-      Object.values(inputText).join(" ");
     fs.writeFileSync(
-        filePath,inputVal
+        filePath,inputText
     )
     return filePath;
 }

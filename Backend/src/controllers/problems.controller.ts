@@ -50,6 +50,7 @@ export const getOneProblem = asyncHandler(async (req: AuthRequest, res: Response
 })
 
 export const getProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log("this works fine")
     const problems = await Problem.find()
 
     res.status(200).json({
@@ -118,12 +119,11 @@ export const runCode = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (testcases.length === 0) {
         throw new ApiError(403, "testcases not found");
     }
-
-    await publisher.publish("run-update",JSON.stringify({userId: req.user._id}))
+    console.log("Itna hua")
     const job = await runQueue.add("run",{
-        problem:problemId,code:code,language:language, userId:req.user._id
+        problemId:problemId,code:code,language:language, userId:req.user._id
     })
-
+    console.log("Itna hua")
     return res.status(201).json({
         message:"Submitted"
     })
@@ -155,3 +155,26 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
         submissionId: submission._id
     })
 })
+
+
+export const submissions = asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log("submit route hit",req.user)
+    const id = req.user._id;
+    const problemId = req.params.id;
+    console.log("id: ",id)
+    const problem = await Problem.findById(problemId);
+    if (!problem) {
+        throw new ApiError(403, "problem not found");
+    }
+
+    const submission = await Submission.find({
+        userId:id,
+        problemId
+    })
+
+    return res.status(201).json({
+        message:"Submitted",
+        submission:submission
+    })
+})
+

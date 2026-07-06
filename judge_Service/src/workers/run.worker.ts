@@ -18,7 +18,6 @@ export const worker = new Worker("runQueue", async (job) => {
     }
     let testcases = problem?.examples || [];
     const code = job.data.code as string
-    let Runtime = 0;
     console.log(typeof (testcases));
     const output = await submissionService(code, testcases, job.data.language!, problem.timeLimit, problem.memoryLimit);
 

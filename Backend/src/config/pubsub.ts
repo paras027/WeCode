@@ -39,5 +39,5 @@ export function setSubscriber(){
         {
             io.to(data.userId).emit("run-update",data);
         }
-    })
+    }) 
 }

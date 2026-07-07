@@ -143,7 +143,7 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     }
 
     const submission = await Submission.create({
-        problemId,code,language,status:"Pending"
+        problemId,code,language,status:"Pending",problemName:problem.title
     })
     await publisher.publish("submission-update",JSON.stringify({submission,userId: req.user._id}))
     const job = await judgeQueue.add("submission",{

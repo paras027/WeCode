@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Link,useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, ChevronDown } from 'lucide-react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -41,11 +41,11 @@ export default function Problems() {
     console.log("data of problems: ", getData)
     setProblems(getData.data.problems)
   }
-  function submit(id:string) {
+  function submit(id: string) {
     Navigate(`/problems/${id}`)
   }
   const filteredProblems = useMemo(() => {
-    return mockProblems.filter((problem) => {
+    return problems.filter((problem) => {
       const matchesSearch = problem.title
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
@@ -55,7 +55,7 @@ export default function Problems() {
 
       return matchesSearch && matchesDifficulty && matchesStatus;
     });
-  }, [searchTerm, difficulty, status]);
+  }, [problems,searchTerm, difficulty, status]);
 
   const totalPages = Math.ceil(filteredProblems.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -66,11 +66,11 @@ export default function Problems() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy':
+      case 'easy':
         return 'text-success bg-success/10';
-      case 'Medium':
+      case 'medium':
         return 'text-warning bg-warning/10';
-      case 'Hard':
+      case 'hard':
         return 'text-error bg-error/10';
       default:
         return '';
@@ -78,14 +78,16 @@ export default function Problems() {
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Solved':
-        return '✓';
-      case 'Attempted':
-        return '◐';
-      default:
-        return '';
+    if (status === "Passed") {
+      return '✓';
     }
+    else if (status === "") {
+      return '';
+    }
+    else {
+      return '◐';
+    }
+
   };
 
   return (
@@ -128,9 +130,9 @@ export default function Problems() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Difficulties</SelectItem>
-                <SelectItem value="Easy">Easy</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="Hard">Hard</SelectItem>
+                <SelectItem value="easy">Easy</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="hard">Hard</SelectItem>
               </SelectContent>
             </Select>
 
@@ -172,11 +174,11 @@ export default function Problems() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {problems.length > 0 ? (
-                problems.map((problem) => (
+              {paginatedProblems.length > 0 ? (
+                paginatedProblems.map((problem) => (
                   <TableRow key={problem._id}>
                     <TableCell className="hidden sm:table-cell">
-                      {getStatusIcon(problem.status)}
+                      {getStatusIcon(problem.verdict)}
                     </TableCell>
                     <TableCell>
                       <p className="font-medium">{problem.title}</p>
@@ -214,9 +216,10 @@ export default function Problems() {
                       </div>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      <Button size="sm" variant="outline" onClick={()=>{
-                        submit(problem._id)}}>
-                          Solve
+                      <Button size="sm" variant="outline" onClick={() => {
+                        submit(problem._id)
+                      }}>
+                        Solve
                       </Button>
                     </TableCell>
                   </TableRow>

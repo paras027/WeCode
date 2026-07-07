@@ -3,6 +3,18 @@ import { ArrowUpRight, ArrowDownRight, Calendar, Clock } from 'lucide-react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import StatusBadge from '@/components/dashboard/Statusbadge';
+import axios from 'axios';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import RecentSubmissions from '@/components/dashboard/RecentSubmissions';
+import {
+  CircleCheckBig,
+  FileCode2,
+  Target,
+  Code2,
+} from "lucide-react";
+import StatCard from '@/components/dashboard/StatCard';
 import {
   LineChart,
   Line,
@@ -27,47 +39,109 @@ const activityData = [
 ];
 
 export default function Dashboard() {
+
+  const dummy = {
+    sub: [],
+    user: {
+      email: "dasdsadsa@gmail.com",
+      name: "paras07asda",
+      role: "user",
+      username: "paras07asda"
+    }
+  }
+  const [userDetails, setUserDetails] = useState(dummy);
+  useEffect(() => {
+    getDetails()
+  }, [])
+
+  async function getDetails() {
+    try {
+      const details = await axios.get("http://localhost:5000/api/v1/user/details", {
+        withCredentials: true
+      })
+      console.log("details of user: ", details.data)
+      setUserDetails(details.data)
+    }
+    catch (e) {
+      console.log(e);
+    }
+
+  }
+  console.log(userDetails.user.name)
+  let c = 0;
+  let c1 = 0;
+  for (let subm of userDetails.sub) {
+    if (subm.verdict === "Passed") {
+      c++;
+    }
+    else {
+      c1++;
+    }
+  }
   return (
     <MainLayout>
       <div className="space-y-8 p-6">
         {/* Header */}
-        <div>
-          <h1 className="mb-2">Welcome back, {mockUser.username}!</h1>
-          <p className="text-muted-foreground">
-            Here's your coding progress and upcoming challenges.
-          </p>
-        </div>
+
+        <DashboardHeader
+          name={userDetails.user.name}
+          solved={c}
+          acceptanceRate={
+            userDetails.sub.length > 0
+              ? (c / userDetails.sub.length) * 100
+              : 0
+          }
+        />
 
         {/* Stats Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {dashboardStats.map((stat, i) => (
-            <Card key={i} className="p-6">
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-              <div className="mt-2 flex items-end gap-2">
-                <p className="text-2xl font-bold sm:text-3xl">{stat.value}</p>
-                {stat.change !== 0 && (
-                  <div
-                    className={`flex items-center gap-1 text-sm ${
-                      stat.change > 0 ? 'text-success' : 'text-error'
-                    }`}
-                  >
-                    {stat.change > 0 ? (
-                      <ArrowUpRight className="h-4 w-4" />
-                    ) : (
-                      <ArrowDownRight className="h-4 w-4" />
-                    )}
-                    {Math.abs(stat.change)}
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* <Card className="p-6">
+            <p className="text-sm text-muted-foreground">Problems Solved</p>
+            <p className="mt-2 text-3xl font-bold">{c}</p>
+          </Card>
+          <Card className="p-6">
+            <p className="text-sm text-muted-foreground">Total Submissions</p>
+            <p className="mt-2 text-3xl font-bold">{userDetails.sub.length}</p>
+          </Card>
+          <Card className="p-6">
+            <p className="text-sm text-muted-foreground">Acceptance Rate</p>
+            <p className="mt-2 text-3xl font-bold">
+              {userDetails.sub.length > 0
+                ? ((c / userDetails.sub.length) * 100).toFixed(1)
+                : "0.0"}
+              %
+            </p>
+          </Card> */}
+          <StatCard
+            title="Problems Solved"
+            value={c}
+            subtitle="Keep it up!"
+            icon={CircleCheckBig}
+          />
+
+          <StatCard
+            title="Submissions"
+            value={userDetails.sub.length}
+            icon={FileCode2}
+          />
+
+          <StatCard
+            title="Acceptance"
+            value={userDetails.sub.length > 0
+              ? ((c / userDetails.sub.length) * 100).toFixed(1) + "%"
+              : "0.0%"}
+            icon={Target}
+          />
         </div>
 
         {/* Main Content */}
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="flex gap-6">
           {/* Activity Chart */}
-          <Card className="col-span-full lg:col-span-2 p-6">
+
+          <div className="flex-1">
+            <RecentSubmissions submissions={userDetails.sub} />
+          </div>
+          {/* <Card className="col-span-full lg:col-span-2 p-6">
             <h2 className="mb-4 font-semibold">Weekly Activity</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={activityData}>
@@ -83,61 +157,97 @@ export default function Dashboard() {
                 <Bar dataKey="problems" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </Card>
+          </Card> */}
+          <div className="w-80">
+            <Card className="overflow-hidden">
+              <div className="bg-gradient-to-r from-primary/15 via-primary/5 to-transparent h-20" />
 
-          {/* Profile Card */}
-          <Card className="p-6">
-            <div className="flex flex-col items-center text-center">
-              <img
-                src={mockUser.avatar}
-                alt={mockUser.username}
-                className="mb-4 h-16 w-16 rounded-full border-2 border-primary"
-              />
-              <h3 className="font-semibold">{mockUser.username}</h3>
-              <p className="text-sm text-muted-foreground">Rating: {mockUser.rating}</p>
-              <p className="mt-3 text-sm text-muted-foreground">{mockUser.bio}</p>
-              <Button className="mt-4 w-full" variant="outline" asChild>
-                <Link to="/profile">View Profile</Link>
-              </Button>
-            </div>
-          </Card>
+              <div className="-mt-10 flex flex-col items-center px-6 pb-6">
+                <img
+                  src={mockUser.avatar}
+                  alt={userDetails.user.name}
+                  className="h-20 w-20 rounded-full border-4 border-background object-cover shadow-lg"
+                />
+
+                <h2 className="mt-4 text-xl font-bold">
+                  {userDetails.user.name}
+                </h2>
+
+                <p className="text-sm text-muted-foreground">
+                  @{userDetails.user.username}
+                </p>
+
+                <span className="mt-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary capitalize">
+                  {userDetails.user.role}
+                </span>
+
+                <div className="mt-6 grid w-full grid-cols-2 gap-4 rounded-lg border bg-muted/30 p-4">
+                  <div className="text-center">
+                    <p className="text-xl font-bold">{c}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Solved
+                    </p>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-xl font-bold">
+                      {userDetails.sub.length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Submissions
+                    </p>
+                  </div>
+                </div>
+
+                <Button className="mt-6 w-full" asChild>
+                  <Link to="/profile">
+                    View Profile
+                  </Link>
+                </Button>
+              </div>
+            </Card>
+          </div>
         </div>
 
         {/* Recent Activity and Upcoming */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 ">
           {/* Recent Submissions */}
-          <Card className="p-6">
+          {/* <Card className="p-6">
             <h2 className="mb-4 font-semibold">Recent Submissions</h2>
             <div className="space-y-4">
-              {mockSubmissions.slice(0, 3).map((submission) => (
+              {userDetails.sub.slice(0, 3).map((submission) => (
                 <div
-                  key={submission.id}
+                  key={submission._id}
                   className="flex items-center justify-between border-b border-border pb-4 last:border-0"
                 >
                   <div>
-                    <p className="font-medium">Problem {submission.problemId}</p>
+                    <p className="font-medium">{submission.problemName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {submission.language} • {submission.timestamp.toLocaleDateString()}
+                      {submission.language} • {new Date(submission.updatedAt).toLocaleDateString()}
                     </p>
-                  </div>
-                  <div
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      submission.status === 'Accepted'
+                  </div> */}
+          {/* <div
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${submission.status === 'Accepted'
                         ? 'bg-success/20 text-success'
                         : 'bg-error/20 text-error'
-                    }`}
+                      }`}
                   >
                     {submission.status}
-                  </div>
+                  </div> */}
+          {/* <StatusBadge
+                    status={submission.status}
+                  />
                 </div>
               ))}
             </div>
             <Button className="mt-4 w-full" variant="outline" asChild>
-              <Link to="/submissions">View All</Link>
+              <Link to="/profile">View All</Link>
             </Button>
-          </Card>
-
-          {/* Upcoming Contests */}
+          </Card> */}
+          <RecentSubmissions
+            submissions={userDetails.sub}
+          />
+          {/* Upcoming Contests
           <Card className="p-6">
             <h2 className="mb-4 font-semibold">Upcoming Contests</h2>
             <div className="space-y-4">
@@ -181,10 +291,10 @@ export default function Dashboard() {
             <Button className="mt-4 w-full" variant="outline" asChild>
               <Link to="/contests">View All Contests</Link>
             </Button>
-          </Card>
+          </Card> */}
         </div>
 
-        {/* Leaderboard Preview */}
+        {/* Leaderboard Preview
         <Card className="p-6">
           <h2 className="mb-4 font-semibold">Global Leaderboard (Top 5)</h2>
           <div className="space-y-3">
@@ -213,7 +323,7 @@ export default function Dashboard() {
           <Button className="mt-4 w-full" variant="outline" asChild>
             <Link to="/leaderboard">View Full Leaderboard</Link>
           </Button>
-        </Card>
+        </Card> */}
       </div>
     </MainLayout>
   );

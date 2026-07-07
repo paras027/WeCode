@@ -37,7 +37,7 @@ export default function Sidebar() {
 
         <div className="my-4 border-t border-sidebar-border" />
 
-        <Button
+        {/* <Button
           variant="ghost"
           className="justify-start gap-3"
           asChild
@@ -46,7 +46,7 @@ export default function Sidebar() {
             <Settings className="h-5 w-5" />
             <span>Settings</span>
           </Link>
-        </Button>
+        </Button> */}
       </nav>
     </aside>
   );

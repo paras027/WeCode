@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, MapPin, Trophy, Zap, Calendar } from 'lucide-react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -15,58 +15,59 @@ const achievements = [
 ];
 
 export default function Profile() {
-
+  const dummy = {
+    sub: [],
+    user: {
+      email: "dasdsadsa@gmail.com",
+      name: "paras07asda",
+      role: "user",
+      username: "paras07asda"
+    }
+  }
+  const [userDetails, setUserDetails] = useState(dummy);
   useEffect(() => {
     getDetails()
   }, [])
 
   async function getDetails() {
     try {
-      const details = await axios.get("http://localhost:5000/api/v1/user", {
+      const details = await axios.get("http://localhost:5000/api/v1/user/details", {
         withCredentials: true
       })
-      console.log("details of user: ",details.data)
+      console.log("details of user: ", details.data)
+      setUserDetails(details.data)
     }
-    catch(e)
-    {
+    catch (e) {
       console.log(e);
     }
-    
-  }
 
+  }
+  console.log(userDetails.user.name)
+  let c = 0;
+  let c1 = 0;
+  for (let subm of userDetails.sub) {
+    if (subm.verdict === "Passed") {
+      c++;
+    }
+    else {
+      c1++;
+    }
+  }
   return (
     <MainLayout>
       <div className="space-y-8 p-6">
         {/* Profile Header */}
         <Card className="overflow-hidden bg-gradient-to-r from-primary/10 via-card to-card">
           <div className="p-8">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-end">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
               <img
                 src={mockUser.avatar}
-                alt={mockUser.username}
+                alt={userDetails.user.name}
                 className="h-32 w-32 rounded-lg border-4 border-primary"
               />
-              <div className="flex-1">
-                <h1 className="mb-2">{mockUser.username}</h1>
-                <p className="mb-4 text-muted-foreground">{mockUser.bio}</p>
-                <div className="flex flex-wrap gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Rating</p>
-                    <p className="text-2xl font-bold text-primary">{mockUser.rating}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Current Streak</p>
-                    <p className="text-2xl font-bold text-success">{mockUser.currentStreak} days</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Max Streak</p>
-                    <p className="text-2xl font-bold">{mockUser.maxStreak} days</p>
-                  </div>
-                </div>
+              <div >
+                <h1 className="mb-2">{userDetails.user.name}</h1>
               </div>
-              <Button asChild>
-                <Link to="/settings">Edit Profile</Link>
-              </Button>
             </div>
           </div>
         </Card>
@@ -75,16 +76,19 @@ export default function Profile() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="p-6">
             <p className="text-sm text-muted-foreground">Problems Solved</p>
-            <p className="mt-2 text-3xl font-bold">{mockUser.problemsSolved}</p>
+            <p className="mt-2 text-3xl font-bold">{c}</p>
           </Card>
           <Card className="p-6">
             <p className="text-sm text-muted-foreground">Total Submissions</p>
-            <p className="mt-2 text-3xl font-bold">{mockUser.totalSubmissions}</p>
+            <p className="mt-2 text-3xl font-bold">{userDetails.sub.length}</p>
           </Card>
           <Card className="p-6">
             <p className="text-sm text-muted-foreground">Acceptance Rate</p>
             <p className="mt-2 text-3xl font-bold">
-              {((mockUser.problemsSolved / mockUser.totalSubmissions) * 100).toFixed(1)}%
+              {userDetails.sub.length > 0
+                ? ((c / userDetails.sub.length) * 100).toFixed(1)
+                : "0.0"}
+              %
             </p>
           </Card>
         </div>
@@ -94,31 +98,31 @@ export default function Profile() {
           <h2 className="mb-4 text-2xl font-bold">Recent Submissions</h2>
           <Card className="overflow-hidden">
             <div className="divide-y divide-border">
-              {mockSubmissions.map((submission) => (
+              {userDetails.sub.map((submission) => (
                 <div key={submission.id} className="flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors">
                   <div>
-                    <p className="font-medium">Problem {submission.problemId}</p>
+                    <p className="font-medium">{submission.problemName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {submission.language} • {submission.timestamp.toLocaleDateString()}
+                      {submission.language} • {new Date(submission.updatedAt).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     {submission.memory && (
                       <div className="text-right">
                         <p className="text-xs text-muted-foreground">Memory</p>
-                        <p className="font-semibold">{submission.memory}MB</p>
+                        <p className="font-semibold">{submission.memory} kb</p>
                       </div>
                     )}
-                    {submission.time && (
+                    {submission.runtime && (
                       <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Time</p>
-                        <p className="font-semibold">{submission.time}ms</p>
+                        <p className="text-xs text-muted-foreground">Runtime</p>
+                        <p className="font-semibold">{submission.runtime} ms</p>
                       </div>
                     )}
                     <div
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${submission.status === 'Accepted'
-                          ? 'bg-success/20 text-success'
-                          : 'bg-error/20 text-error'
+                        ? 'bg-success/20 text-success'
+                        : 'bg-error/20 text-error'
                         }`}
                     >
                       {submission.status}

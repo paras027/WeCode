@@ -32,6 +32,7 @@ export default function Login() {
         });
         console.log(val);
         Navigate("/dashboard")
+        setIsLoading(false)
       }
       catch (e) {
         console.log("Error while signing up: ", e)
@@ -122,14 +123,14 @@ export default function Login() {
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Button variant="outline" className="w-full">
             Sign in with Google
           </Button>
           <Button variant="outline" className="w-full">
             Sign in with GitHub
           </Button>
-        </div>
+        </div> */}
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don't have an account?{' '}

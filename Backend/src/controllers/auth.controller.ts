@@ -63,9 +63,8 @@ export const loginUser = asyncHandler(async(req:Request,res:Response)=>{
     }
 
     const token = generateToken(user._id.toString(),user.role)
-    res.cookie("token",token,{
-        httpOnly:true,secure:env.NODE_ENV === "development",sameSite:"lax",maxAge: Number(env.JWT_EXPIRES_IN)
-    }).status(201).json({
+    console.log("worked here3")
+    res.cookie("token", token).status(201).json({
         message:"User Logged in successfully",
         user,
         success:true

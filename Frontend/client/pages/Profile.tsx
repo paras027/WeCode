@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Mail, MapPin, Trophy, Zap, Calendar } from 'lucide-react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { mockUser, mockSubmissions } from '@/data/mockData';
+import axios from 'axios';
 
 const achievements = [
   { id: 1, name: 'First Submission', description: 'Submitted your first solution', icon: '🎯' },
@@ -13,6 +15,25 @@ const achievements = [
 ];
 
 export default function Profile() {
+
+  useEffect(() => {
+    getDetails()
+  }, [])
+
+  async function getDetails() {
+    try {
+      const details = await axios.get("http://localhost:5000/api/v1/user", {
+        withCredentials: true
+      })
+      console.log("details of user: ",details.data)
+    }
+    catch(e)
+    {
+      console.log(e);
+    }
+    
+  }
+
   return (
     <MainLayout>
       <div className="space-y-8 p-6">
@@ -51,7 +72,7 @@ export default function Profile() {
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="p-6">
             <p className="text-sm text-muted-foreground">Problems Solved</p>
             <p className="mt-2 text-3xl font-bold">{mockUser.problemsSolved}</p>
@@ -66,26 +87,6 @@ export default function Profile() {
               {((mockUser.problemsSolved / mockUser.totalSubmissions) * 100).toFixed(1)}%
             </p>
           </Card>
-          <Card className="p-6">
-            <p className="text-sm text-muted-foreground">Global Rank</p>
-            <p className="mt-2 text-3xl font-bold text-primary">#12,456</p>
-          </Card>
-        </div>
-
-        {/* Achievements */}
-        <div>
-          <h2 className="mb-4 text-2xl font-bold">Achievements</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {achievements.map((achievement) => (
-              <Card key={achievement.id} className="p-6 text-center">
-                <div className="mb-3 text-4xl">{achievement.icon}</div>
-                <h3 className="font-semibold">{achievement.name}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {achievement.description}
-                </p>
-              </Card>
-            ))}
-          </div>
         </div>
 
         {/* Recent Activity */}
@@ -115,11 +116,10 @@ export default function Profile() {
                       </div>
                     )}
                     <div
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        submission.status === 'Accepted'
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${submission.status === 'Accepted'
                           ? 'bg-success/20 text-success'
                           : 'bg-error/20 text-error'
-                      }`}
+                        }`}
                     >
                       {submission.status}
                     </div>

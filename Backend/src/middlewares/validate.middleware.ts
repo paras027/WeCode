@@ -11,7 +11,7 @@ export const validate = (schema:ZodType)=>(req:Request,res:Response,next:NextFun
             errors:result.error
         })
     }
-
+    console.log("validated")
     req.body = result.data;
     next();
 

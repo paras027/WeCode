@@ -1525,5 +1525,5 @@ export default function ProblemDetail() {
       </div>
     </MainLayout>
   );
-} 
+}  
  

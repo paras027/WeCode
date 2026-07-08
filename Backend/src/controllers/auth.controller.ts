@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import env from "../config/env";
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
-import { generateToken } from "../utils/jwt";
+import { generateToken, generateRefreshToken } from "../utils/jwt";
 import crypto from "crypto"
 import { Resend } from "resend"
 
@@ -29,14 +29,22 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
         username,
         email,
         password: hashedPassword,
-        role
+        role,
     })
 
     const token = generateToken(user._id.toString(), user.role)
+    const refreshToken = generateRefreshToken(user._id.toString(), user.role)
 
+    user.refreshToken = refreshToken;
+    await user.save();
     res.cookie("token", token, {
         httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000
-    }).status(201).json({
+    })
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+
+    res.status(201).json({
         message: "User registered successfully",
         user,
         success: true
@@ -64,8 +72,17 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
     }
 
     const token = generateToken(user._id.toString(), user.role)
-    console.log("worked here3")
-    res.cookie("token", token).status(201).json({
+    const refreshToken = generateRefreshToken(user._id.toString(), user.role)
+
+    user.refreshToken = refreshToken;
+    await user.save();
+    res.cookie("token", token, {
+        httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+    res.status(201).json({
         message: "User Logged in successfully",
         user,
         success: true
@@ -132,7 +149,7 @@ Click below to reset your password.
 })
 
 export const resetPass = asyncHandler(async (req: Request, res: Response) => {
-    const token = req.params.token;
+    const token = req.params.token as string;
     const { password } = req.body;
 
     const presentToken = crypto.createHash("sha256").update(token).digest("hex");
@@ -162,3 +179,49 @@ export const resetPass = asyncHandler(async (req: Request, res: Response) => {
             "Password updated successfully."
     });
 })
+
+interface MyJwtPayload {
+    userId: string;
+    role: string;
+}
+
+export const refreshToken = asyncHandler(async (req, res) => {
+
+    const refreshToken = req.cookies.refreshToken as string;
+    console.log(refreshToken)
+    if (!refreshToken) {
+        throw new ApiError(401, "Unauthorized");
+    }
+
+    const decoded = jwt.verify(
+        refreshToken,
+        env.JWT_REFRESH_SECRET!
+    ) as MyJwtPayload;
+    console.log("decoded: ",decoded)
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+        throw new ApiError(401, "User not found");
+    }
+
+    if (user.refreshToken !== refreshToken) {
+        throw new ApiError(401, "Invalid Refresh Token");
+    }
+
+    const accessToken = generateToken(
+        user._id.toString(),
+        user.role
+    );
+
+    res.cookie(
+        "token",
+        accessToken, {
+        httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000
+    }
+    );
+
+    return res.status(200).json({
+        success: true,
+        accessToken
+    });
+});

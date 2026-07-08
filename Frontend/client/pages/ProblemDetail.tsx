@@ -877,6 +877,7 @@ import {
   ChevronLeft, Timer, Database, Tag, Lightbulb,
   Send, Circle
 } from 'lucide-react';
+import api from '@/api/axios';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
@@ -1217,7 +1218,7 @@ export default function ProblemDetail() {
 
   async function getProblem() {
     try {
-      const res = await axios.get(`http://localhost:5000/api/v1/problems/problem/${id.id}`);
+      const res = await api.get(`/problems/problem/${id.id}`);
       setProblem(res.data.problems);
       console.log('problems check:', res.data.problems);
       setCode(res.data.problems.starterCode?.[language] || '');
@@ -1229,7 +1230,7 @@ export default function ProblemDetail() {
   async function fetchSubmissions() {
     setLoadingSubmissions(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/v1/problems/submissions/${id.id}`,
+      const res = await api.get(`/problems/submissions/${id.id}`,
         {
           withCredentials:true
         }
@@ -1250,7 +1251,7 @@ export default function ProblemDetail() {
     setLatestSubmitResult(null);
     setConsoleTab('output');
     try {
-      await axios.post('http://localhost:5000/api/v1/problems/run', { code, problemId: id.id, language }, { withCredentials: true });
+      await api.post('/problems/run', { code, problemId: id.id, language }, { withCredentials: true });
     } catch (e) {
       console.error(e);
       setIsRunning(false);
@@ -1263,7 +1264,7 @@ export default function ProblemDetail() {
     setActiveRun(null);
     setConsoleTab('output');
     try {
-      await axios.post('http://localhost:5000/api/v1/problems/submit', { code, problemId: id.id, language }, { withCredentials: true });
+      await api.post('/problems/submit', { code, problemId: id.id, language }, { withCredentials: true });
     } catch (e) {
       console.error(e);
     } finally {

@@ -5,7 +5,7 @@ import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import axios from 'axios';
+import api from '@/api/axios';
 import {
   Select,
   SelectContent,
@@ -37,7 +37,7 @@ export default function Problems() {
     getProblems();
   }, [])
   async function getProblems() {
-    const getData = await axios.get("http://localhost:5000/api/v1/problems/problem");
+    const getData = await api.get("/problems/problem");
     console.log("data of problems: ", getData)
     setProblems(getData.data.problems)
   }

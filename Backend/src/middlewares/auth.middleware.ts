@@ -10,11 +10,6 @@ export interface AuthRequest extends Request {
     user?: any
 }
 
-interface JwtPayload {
-    id: string,
-    role: string
-}
-
 export const isAuthenticated = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
     const token = req.cookies.token;
     if(!token)

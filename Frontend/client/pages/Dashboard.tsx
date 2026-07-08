@@ -15,6 +15,7 @@ import {
   Code2,
 } from "lucide-react";
 import StatCard from '@/components/dashboard/StatCard';
+import api from '@/api/axios';
 import {
   LineChart,
   Line,
@@ -56,7 +57,7 @@ export default function Dashboard() {
 
   async function getDetails() {
     try {
-      const details = await axios.get("http://localhost:5000/api/v1/user/details", {
+      const details = await api.get("/user/details", {
         withCredentials: true
       })
       console.log("details of user: ", details.data)
@@ -210,7 +211,7 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Activity and Upcoming */}
-        <div className="grid gap-6 ">
+        {/* <div className="grid gap-6 "> */}
           {/* Recent Submissions */}
           {/* <Card className="p-6">
             <h2 className="mb-4 font-semibold">Recent Submissions</h2>
@@ -244,9 +245,9 @@ export default function Dashboard() {
               <Link to="/profile">View All</Link>
             </Button>
           </Card> */}
-          <RecentSubmissions
+          {/* <RecentSubmissions
             submissions={userDetails.sub}
-          />
+          /> */}
           {/* Upcoming Contests
           <Card className="p-6">
             <h2 className="mb-4 font-semibold">Upcoming Contests</h2>
@@ -292,7 +293,7 @@ export default function Dashboard() {
               <Link to="/contests">View All Contests</Link>
             </Button>
           </Card> */}
-        </div>
+        {/* </div> */}
 
         {/* Leaderboard Preview
         <Card className="p-6">

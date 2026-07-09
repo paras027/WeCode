@@ -6,6 +6,8 @@ import { generateInputFile } from "./generateInputFile"
 import { compileCommand, runCommandMethod } from "../../utils/SelectLanguage.utils"
 import fs from "fs"
 import { cleanupFiles } from "../../utils/cleanUpFile.utils"
+import Submission from "../../models/submission.model"
+import { publisher } from "../../config/pubsub"
 
 type TestCaseResult = {
     message: string;
@@ -14,7 +16,7 @@ type TestCaseResult = {
     output: any;
     result: string;
 };
-export async function executeCode(filePath: string, testcases: any, language: string, timeLimit: number, memoryLimit: number) {
+export async function executeCode(filePath: string, testcases: any, language: string, timeLimit: number, memoryLimit: number,subId:object) {
     let folderPath = path.dirname(filePath);
     let fileName = path.basename(filePath);
     let file = path.parse(fileName).name
@@ -23,6 +25,12 @@ export async function executeCode(filePath: string, testcases: any, language: st
     let ans;
     let runResult = [];
     const inputFiles: string[] = [];
+     const submission = await Submission.findByIdAndUpdate(subId, {
+            status: "Compiling"
+        }, { new: true });
+    await publisher.publish("submission-update", JSON.stringify({
+                submission, userId: submission!.userId
+            }))
     console.log("File exists before compile:", fs.existsSync(filePath));
     console.log("File path:", filePath);
     try {
@@ -39,7 +47,12 @@ export async function executeCode(filePath: string, testcases: any, language: st
             }
             console.log(compileResult.message + "compile msggggg ------------------");
         }
-
+        const submission = await Submission.findByIdAndUpdate(subId, {
+            status: "Running Test Cases"
+        }, { new: true });
+    await publisher.publish("submission-update", JSON.stringify({
+                submission, userId: submission!.userId
+            }))
         console.log("working")
         for (const testcase of testcases) {
             console.log("testcase of run: ",testcase)

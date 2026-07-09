@@ -2,21 +2,20 @@ import jwt from "jsonwebtoken"
 import env from "../config/env"
 interface JwtPayload {
     userId: string,
-    role: string
 }
-export const generateToken = (userId: string, role: string) => {
+export const generateToken = (userId: string) => {
     return jwt.sign(
         {
-            userId, role
+            userId
         }, env.JWT_SECRET,
         {
            expiresIn: "15min",
         })
 }
-export const generateRefreshToken = (userId: string, role: string) => {
+export const generateRefreshToken = (userId: string) => {
     return jwt.sign(
         {
-            userId, role
+            userId
         }, env.JWT_REFRESH_SECRET,
         {
            expiresIn: "7d",

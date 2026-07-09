@@ -133,6 +133,7 @@ export default function Profile() {
             </div>
           </Card>
         </div>
+        
       </div>
     </MainLayout>
   );

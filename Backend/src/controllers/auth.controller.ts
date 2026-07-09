@@ -10,9 +10,9 @@ import crypto from "crypto"
 import { Resend } from "resend"
 
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
-    const { name, username, email, password, role } = req.body;
-    console.log(req.body)
-    if (!name || !username || !email || !password || !role) {
+    const { name, username, email, password } = req.body;
+
+    if (!name || !username || !email || !password) {
         throw new ApiError(400, "All fields are required");
     }
 
@@ -21,19 +21,18 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     if (existingUser) {
         throw new ApiError(400, "User already exists");
     }
-
+    console.log("name: ", existingUser)
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
         name,
         username,
         email,
-        password: hashedPassword,
-        role,
+        password: hashedPassword
     })
 
-    const token = generateToken(user._id.toString(), user.role)
-    const refreshToken = generateRefreshToken(user._id.toString(), user.role)
+    const token = generateToken(user._id.toString())
+    const refreshToken = generateRefreshToken(user._id.toString())
 
     user.refreshToken = refreshToken;
     await user.save();
@@ -71,8 +70,8 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(400, "Invalid credentials");
     }
 
-    const token = generateToken(user._id.toString(), user.role)
-    const refreshToken = generateRefreshToken(user._id.toString(), user.role)
+    const token = generateToken(user._id.toString())
+    const refreshToken = generateRefreshToken(user._id.toString())
 
     user.refreshToken = refreshToken;
     await user.save();
@@ -90,7 +89,19 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
 })
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-    res.clearCookie("token").json({
+    const refreshToken = req.cookies.refreshToken;
+    const user = await User.findOne({ refreshToken })
+    if (!user) {
+        res.json({
+            success: true,
+            message: "User not Logged in"
+        })
+    }
+    user!.refreshToken = "";
+    user?.save();
+    res.clearCookie("token")
+    res.clearCookie("refreshToken")
+    res.json({
         success: true,
         message: "Logged out successfully"
     })
@@ -197,7 +208,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
         refreshToken,
         env.JWT_REFRESH_SECRET!
     ) as MyJwtPayload;
-    console.log("decoded: ",decoded)
+    console.log("decoded: ", decoded)
     const user = await User.findById(decoded.userId);
 
     if (!user) {
@@ -209,8 +220,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
     }
 
     const accessToken = generateToken(
-        user._id.toString(),
-        user.role
+        user._id.toString()
     );
 
     res.cookie(

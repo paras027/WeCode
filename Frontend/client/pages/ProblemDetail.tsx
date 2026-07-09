@@ -1199,7 +1199,7 @@ export default function ProblemDetail() {
 
     socket.on('submission-update', (data) => {
       console.log('Received:', data);
-      const sub = data.newdata;
+      const sub = data.submission;
       setLatestSubmitResult(sub);
       setConsoleTab('output');
       setLoadingSubmissions(false);

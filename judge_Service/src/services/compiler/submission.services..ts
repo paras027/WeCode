@@ -2,7 +2,7 @@ import { generateCodeFile } from "./generateCodeFile";
 import { executeCode } from "./execute.services";
 import { generateInputFile } from "./generateInputFile";
 
-export async function submissionService(code: string, testcases: any, language: string, timeLimit: number, memoryLimit: number) {
+export async function submissionService(code: string, testcases: any, language: string, timeLimit: number, memoryLimit: number,subId:object) {
 
     let extension = ""
     switch (language) {
@@ -20,7 +20,7 @@ export async function submissionService(code: string, testcases: any, language: 
     }
     let path: string = generateCodeFile(code, extension)
     // let inputPath: string = generateInputFile(input);
-    let output = await executeCode(path, testcases, language, timeLimit, memoryLimit);
+    let output = await executeCode(path, testcases, language, timeLimit, memoryLimit,subId);
     console.log("Outpiut: ", output)
     let verdict
     let result: any = [];

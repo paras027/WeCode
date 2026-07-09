@@ -1,44 +1,57 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, Code2 } from 'lucide-react';
+import { Eye, EyeOff, Code2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import axios from "axios"
-import { useNavigate } from 'react-router-dom';
 
+import { useNavigate } from 'react-router-dom';
+import api from '@/api/axios';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function Login() {
   const Navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const [error, setError] = useState("");
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setError("");
     setIsLoading(true);
-    login()
+
+    await login();
   };
   const data = {
-    email:email,password:password
+    email: email, password: password
   }
 
   async function login() {
-      console.log("coming here?")
-      try {
+    try {
+      await api.post("/auth/login", {
+        email,
+        password,
+      });
 
-        const val = await axios.post("http://localhost:5000/api/v1/auth/login", data,{
-          withCredentials:true
-        });
-        console.log(val);
-        Navigate("/dashboard")
-        setIsLoading(false)
-      }
-      catch (e) {
-        console.log("Error while signing up: ", e)
+      Navigate("/dashboard");
+
+    } catch (err: any) {
+
+      if (!err.response) {
+        setError("Unable to connect to the server.");
+        return;
       }
 
+      setError(
+        err.response.data.message ??
+        "Something went wrong."
+      );
+
+    } finally {
+      setIsLoading(false);
     }
+  }
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-card px-4">
       <Card className="w-full max-w-md p-8">
@@ -55,7 +68,15 @@ export default function Login() {
             Sign in to your account to continue learning
           </p>
         </div>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
 
+            <AlertDescription>
+              {error}
+            </AlertDescription>
+          </Alert>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="text-sm font-medium">
@@ -66,8 +87,15 @@ export default function Login() {
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1"
+              onChange={(e) => {
+                setEmail(e.target.value);
+
+                if (error) setError("");
+              }}
+              className={`mt-1 ${error
+                  ? "border-red-500 focus-visible:ring-red-500"
+                  : ""
+                }`}
               required
             />
           </div>
@@ -82,8 +110,17 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+
+                  if (error) setError("");
+                }}
                 required
+                className={
+                  error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
               />
               <button
                 type="button"

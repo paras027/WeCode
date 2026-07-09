@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import api from '@/api/axios';
 
 export default function Signup() {
   const Navigate = useNavigate();
@@ -16,31 +19,64 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setError("");
     setIsLoading(true);
-    signup();
+
+    await signup();
   };
 
   const data = {
-    name: name, username: username, email: email, password: password, role: role,
+    name: name, username: username, email: email, password: password
   }
 
   async function signup() {
-    console.log("coming here?")
     try {
-
-      const val = await axios.post("http://localhost:5000/api/v1/auth/register", data,{
-        withCredentials:true
+      await api.post("/auth/register", {
+        name,
+        username,
+        email,
+        password,
+        role,
       });
-      console.log(val);
-      Navigate("/dashboard")
+
+      Navigate("/dashboard");
+    } catch (err: any) {
+      if (!err.response) {
+        setError("Unable to connect to the server.");
+      } else {
+        switch (err.response.status) {
+          case 400:
+            setError(err.response.data.message);
+            break;
+
+          case 401:
+            setError("Unauthorized.");
+            break;
+
+          case 409:
+            setError("User already exists.");
+            break;
+
+          case 422:
+            setError(err.response.data.message);
+            break;
+
+          case 500:
+            setError("Internal server error.");
+            break;
+
+          default:
+            setError(err.response.data.message || "Something went wrong.");
+        }
+      }
+    } finally {
+      setIsLoading(false);
     }
-    catch (e) {
-      console.log("Error while signing up: ", e)
-    }
-    setIsLoading(false)
   }
 
   const passwordStrength = () => {
@@ -70,7 +106,12 @@ export default function Signup() {
             Join thousands of developers improving their skills
           </p>
         </div>
-
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="name" className="text-sm font-medium">
@@ -80,8 +121,9 @@ export default function Signup() {
               id="username"
               placeholder="johndoe"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1"
+              onChange={(e) => {setName(e.target.value);; if (error) setError("");}}
+              className={`mt-1 ${error ? "border-red-500 focus-visible:ring-red-500" : ""
+                }`}
               required
             />
           </div>
@@ -93,8 +135,9 @@ export default function Signup() {
               id="username"
               placeholder="johndoe"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mt-1"
+              onChange={(e) => {setUsername(e.target.value); if (error) setError("");}}
+              className={`mt-1 ${error ? "border-red-500 focus-visible:ring-red-500" : ""
+                }`}
               required
             />
           </div>
@@ -108,8 +151,9 @@ export default function Signup() {
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1"
+              onChange={(e) => {setEmail(e.target.value);if (error) setError("");}}
+              className={`mt-1 ${error ? "border-red-500 focus-visible:ring-red-500" : ""
+                }`}
               required
             />
           </div>
@@ -124,8 +168,10 @@ export default function Signup() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {setPassword(e.target.value);; if (error) setError("");}}
                 required
+                className={`mt-1 ${error ? "border-red-500 focus-visible:ring-red-500" : ""
+                }`}
               />
               <button
                 type="button"
@@ -176,19 +222,6 @@ export default function Signup() {
                 </ul>
               </div>
             )}
-          </div>
-          <div>
-            <label htmlFor="role" className="text-sm font-medium">
-              Role
-            </label>
-            <Input
-              id="role"
-              placeholder="admin/user"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="mt-1"
-              required
-            />
           </div>
           <div className="flex items-center gap-2 text-sm">
             <input

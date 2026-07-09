@@ -7,8 +7,8 @@ export const validate = (schema:ZodType)=>(req:Request,res:Response,next:NextFun
     {
         return res.status(400).json({
             success:false,
-            message:"validation Failed",
-            errors:result.error
+            message:result.error.issues[0].message,
+            errors:result.error.issues
         })
     }
     console.log("validated")

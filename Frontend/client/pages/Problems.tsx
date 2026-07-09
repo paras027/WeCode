@@ -66,11 +66,11 @@ export default function Problems() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy':
+      case 'Easy':
         return 'text-success bg-success/10';
-      case 'medium':
+      case 'Medium':
         return 'text-warning bg-warning/10';
-      case 'hard':
+      case 'Hard':
         return 'text-error bg-error/10';
       default:
         return '';

@@ -12,9 +12,9 @@ import { Button } from '@/components/ui/button';
 const navigation = [
   { icon: Home, label: 'Dashboard', href: '/dashboard' },
   { icon: BookOpen, label: 'Problems', href: '/problems' },
-  { icon: Trophy, label: 'Contests', href: '/contests' },
-  { icon: BarChart3, label: 'Leaderboard', href: '/leaderboard' },
-  { icon: MessageSquare, label: 'Discuss', href: '/discuss' },
+  // { icon: Trophy, label: 'Contests', href: '/contests' },
+  // { icon: BarChart3, label: 'Leaderboard', href: '/leaderboard' },
+  // { icon: MessageSquare, label: 'Discuss', href: '/discuss' },
 ];
 
 export default function Sidebar() {

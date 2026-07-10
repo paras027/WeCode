@@ -4,11 +4,13 @@ import { Eye, EyeOff, Code2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/context/AuthContext';
 
 import { useNavigate } from 'react-router-dom';
 import api from '@/api/axios';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function Login() {
+  const {setUser} = useAuth();
   const Navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -29,15 +31,15 @@ export default function Login() {
 
   async function login() {
     try {
-      await api.post("/auth/login", {
+      const userData = await api.post("/auth/login", {
         email,
         password,
       });
-
+      setUser(userData.data.user);
       Navigate("/dashboard");
 
     } catch (err: any) {
-
+setUser(null);
       if (!err.response) {
         setError("Unable to connect to the server.");
         return;

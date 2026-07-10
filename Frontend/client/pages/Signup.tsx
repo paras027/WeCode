@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import api from '@/api/axios';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Signup() {
   const Navigate = useNavigate();
@@ -20,13 +21,14 @@ export default function Signup() {
   const [role, setRole] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const {setUser} = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setError("");
     setIsLoading(true);
-
+    
     await signup();
   };
 
@@ -36,16 +38,16 @@ export default function Signup() {
 
   async function signup() {
     try {
-      await api.post("/auth/register", {
+      const userData = await api.post("/auth/register", {
         name,
         username,
         email,
         password,
-        role,
       });
-
+      setUser(userData.data.user);
       Navigate("/dashboard");
     } catch (err: any) {
+      setUser(null);
       if (!err.response) {
         setError("Unable to connect to the server.");
       } else {

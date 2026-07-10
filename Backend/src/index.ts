@@ -22,7 +22,6 @@ app.get('/test',asyncHandler(async (req,res)=>{
         name:"Paras",
         email:"abc#gmail.com",
         password:"134",
-        role:"admin"
     })
     res.json(user);
 }));

@@ -8,16 +8,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/AuthContext";
 
 import api from "@/api/axios"; // your axios instance
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
-
+  const {setUser} = useAuth()
   const logout = async () => {
     try {
       await api.post("/auth/logout");
+      setUser(null)
       navigate("/login");
     } catch (err) {
       console.log(err);
@@ -40,9 +42,9 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
+          {/* <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
-          </Button>
+          </Button> */}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

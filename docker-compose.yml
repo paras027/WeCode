@@ -7,10 +7,12 @@ services:
     volumes:
       - ./Backend:/app
       - /app/node_modules
-    env_file:
-      - ./Backend/.env
+
     depends_on:
       - redis
+
+    environment:
+      - NODE_ENV=production
   
   redis:
     image: redis:7-alpine
@@ -18,16 +20,17 @@ services:
     ports:
       - "6379:6379"
     
-  judge: 
+  judge-service: 
     build: ./judge_Service
     container_name: judge
     volumes:
       - ./judge_Service:/app
       - /app/node_modules
-    env_file:
-      - ./judge_Service/.env
     depends_on:
       - redis
+    
+    environment:
+      - NODE_ENV=production
 
   frontend: 
     build: ./Frontend

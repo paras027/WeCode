@@ -1,8 +1,11 @@
 import IORedis from "ioredis"
+import env from "./env"
+console.log(env.REDIS_HOST)
+console.log(env.REDIS_PORT)
 
 export const connectRedis = new IORedis({
-    host: "127.0.0.1",
-    port: 6379,
+    host: env.REDIS_HOST,
+    port: env.REDIS_PORT,
     maxRetriesPerRequest: null,
 })
 

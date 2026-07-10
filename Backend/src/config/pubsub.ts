@@ -1,15 +1,16 @@
 import IORedis from "ioredis"
 import { io } from "../socket/socket";
 import logger from "./logger";
+import env from "./env";
 
 export const subscriber = new IORedis({
-    host:"127.0.0.1",
-    port:6379
+    host:env.REDIS_HOST,
+    port:env.REDIS_PORT
 })
 
 export const publisher = new IORedis({
-    host:"127.0.0.1",
-    port:6379
+    host:env.REDIS_HOST,
+    port:env.REDIS_PORT
 })
 
 export function setSubscriber(){

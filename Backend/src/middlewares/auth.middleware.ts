@@ -1,8 +1,7 @@
 import asyncHandler from "../utils/asyncHandler";
 import { Request, Response, NextFunction } from 'express';
 import ApiError from "../utils/ApiError";
-import jwt from 'jsonwebtoken';
-import env from "../config/env";
+import logger from "../config/logger";
 import User from "../models/users.model";
 import { verifyToken } from "../utils/jwt";
 
@@ -27,7 +26,7 @@ export const isAuthenticated = asyncHandler(async (req: AuthRequest, res: Respon
     if (!user) {
         throw new ApiError(404, "User not found");
     }
-
+    logger.info("Authenticated")
     req.user = user;
     next();
 })

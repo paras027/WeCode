@@ -1,4 +1,5 @@
 import { exec } from "child_process";
+import logger from "../../config/logger";
 
 export function runCode(command: string) {
     return new Promise((resolve) => {
@@ -9,7 +10,7 @@ export function runCode(command: string) {
             if (err) {
 
                 const code = (err as any).code;
-
+                logger.error(err)
                 switch (code) {
 
                     // timeout command

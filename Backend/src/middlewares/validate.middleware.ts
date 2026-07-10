@@ -1,5 +1,6 @@
 import { ZodType } from "zod";
 import { Request,Response,NextFunction } from "express";
+import logger from "../config/logger";
 
 export const validate = (schema:ZodType)=>(req:Request,res:Response,next:NextFunction)=>{
     const result = schema.safeParse(req.body);
@@ -11,7 +12,7 @@ export const validate = (schema:ZodType)=>(req:Request,res:Response,next:NextFun
             errors:result.error.issues
         })
     }
-    console.log("validated")
+    logger.info("validated")
     req.body = result.data;
     next();
 

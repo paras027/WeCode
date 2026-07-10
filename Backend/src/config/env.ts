@@ -9,7 +9,9 @@ const env = {
     JWT_SECRET:process.env.JWT_SECRET || "",
     JWT_EXPIRES_IN: (process.env.JWT_EXPIRES_IN || "1d") as SignOptions["expiresIn"],
     RESEND_API_KEY:process.env.RESEND_API_KEY||'',
-    JWT_REFRESH_SECRET:process.env.JWT_REFRESH_SECRET || ""
+    JWT_REFRESH_SECRET:process.env.JWT_REFRESH_SECRET || "",
+    REDIS_HOST:process.env.REDIS_HOST,
+    REDIS_PORT:process.env.REDIS_PORT
 }
 
 export default env;

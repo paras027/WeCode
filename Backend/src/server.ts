@@ -4,6 +4,7 @@ import { connectDB } from "./config/db";
 import { initializeSocket } from "./socket/socket";
 import http from "http"
 import { setSubscriber } from "./config/pubsub";
+import logger from "./config/logger";
 
 const startServer = async () => {
   try {
@@ -12,11 +13,11 @@ const startServer = async () => {
     await connectDB();
     setSubscriber();
     server.listen(env.PORT, () => {
-      console.log(`Server is running on port ${env.PORT}`);
+      logger.info(`Server is running on port ${env.PORT}`);
     });
   }
   catch (e) {
-    console.error("Failed to start server:", e);
+    logger.error(e);
     process.exit(1);
   }
 }

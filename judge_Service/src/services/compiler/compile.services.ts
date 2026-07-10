@@ -1,4 +1,5 @@
 import {exec} from "child_process"
+import logger from "../../config/logger";
 
 export function compile(path:string)
 {
@@ -6,12 +7,13 @@ export function compile(path:string)
 
          exec(path, (err, stdout, stderr) => {
                     if (stderr) {
-                        console.log(stderr);
+                        logger.error(stderr)
                         resolve({ message: "Compilation Error", output: stderr });
         
                         return
                     }
                     if (err) {
+                        logger.error(err)
                         reject(err);
                         return;
                     }

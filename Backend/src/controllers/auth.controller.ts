@@ -8,6 +8,7 @@ import { Request, Response } from 'express';
 import { generateToken, generateRefreshToken } from "../utils/jwt";
 import crypto from "crypto"
 import { Resend } from "resend"
+import logger from "../config/logger";
 
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
     const { name, username, email, password } = req.body;
@@ -19,9 +20,9 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
+   
         throw new ApiError(400, "User already exists");
     }
-    console.log("name: ", existingUser)
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -42,13 +43,13 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000
     })
-
+    logger.info("Registered")
     res.status(201).json({
         message: "User registered successfully",
         user,
         success: true
     })
-    console.log("worked")
+    
 })
 
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
@@ -61,12 +62,14 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
 
     if (!user) {
+   
         throw new ApiError(404, "User not found");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
+
         throw new ApiError(400, "Invalid credentials");
     }
 
@@ -81,6 +84,7 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000
     })
+    logger.info("Logged in")
     res.status(201).json({
         message: "User Logged in successfully",
         user,
@@ -101,6 +105,7 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
     user?.save();
     res.clearCookie("token")
     res.clearCookie("refreshToken")
+    logger.info("Logged out successfully")
     res.json({
         success: true,
         message: "Logged out successfully"
@@ -121,7 +126,6 @@ export const forgotPass = asyncHandler(async (req: Request, res: Response) => {
                 "If an account with this email exists, a reset link has been sent."
         });
     }
-    console.log("worked or not")
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
     user.passwordResetToken = hashedToken;
@@ -131,7 +135,7 @@ export const forgotPass = asyncHandler(async (req: Request, res: Response) => {
     const resend = new Resend(env.RESEND_API_KEY)
     const resetLink =
         `http://localhost:8080/reset-password/${resetToken}`;
-
+    logger.info("Email sent")
     await resend.emails.send({
         from: 'onboarding@resend.dev',
         to: email,
@@ -164,7 +168,6 @@ export const resetPass = asyncHandler(async (req: Request, res: Response) => {
     const { password } = req.body;
 
     const presentToken = crypto.createHash("sha256").update(token).digest("hex");
-    console.log(presentToken)
     const user = await User.findOne({
         passwordResetToken: presentToken,
         passwordResetExpires: {
@@ -184,6 +187,7 @@ export const resetPass = asyncHandler(async (req: Request, res: Response) => {
 
     user.passwordResetExpires = null;
     await user.save();
+    logger.info("Password updated successfully.")
     return res.status(200).json({
         success: true,
         message:
@@ -212,6 +216,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
     const user = await User.findById(decoded.userId);
 
     if (!user) {
+        
         throw new ApiError(401, "User not found");
     }
 

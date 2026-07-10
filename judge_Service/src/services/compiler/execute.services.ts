@@ -31,12 +31,9 @@ export async function executeCode(filePath: string, testcases: any, language: st
     await publisher.publish("submission-update", JSON.stringify({
                 submission, userId: submission!.userId
             }))
-    console.log("File exists before compile:", fs.existsSync(filePath));
-    console.log("File path:", filePath);
     try {
         if (compileCom !== "") {
             const compileResult: any = await compile(compileCom);
-            console.log("Compile coming or not: ", compileResult)
             if (compileResult.message == "Compilation Error") {
                 runResult.push(compileResult)
                 ans = {
@@ -45,7 +42,6 @@ export async function executeCode(filePath: string, testcases: any, language: st
                 }
                 return ans;
             }
-            console.log(compileResult.message + "compile msggggg ------------------");
         }
         const submission = await Submission.findByIdAndUpdate(subId, {
             status: "Running Test Cases"
@@ -53,7 +49,7 @@ export async function executeCode(filePath: string, testcases: any, language: st
     await publisher.publish("submission-update", JSON.stringify({
                 submission, userId: submission!.userId
             }))
-        console.log("working")
+
         for (const testcase of testcases) {
             console.log("testcase of run: ",testcase)
             const inputPath = generateInputFile(testcase.input);
@@ -129,13 +125,11 @@ export async function executeCode(filePath: string, testcases: any, language: st
             runtime = timeLimit;
             memoryUsed = 0; // or whatever you decide
         }
-        console.log(runResult + "Run Result msggggg ------------------");
         ans = {
             result: runResult,
             runtime: runtime,
             memory: memoryUsed
         }
-        console.log(ans + "Run Result msggggg ------------------");
         return ans;
     }
     finally {

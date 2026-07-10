@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import { verifyToken } from "../utils/jwt";
 export let io: Server;
+import logger from "../config/logger";
 
 export function initializeSocket(server: any) {
 
@@ -12,7 +13,7 @@ export function initializeSocket(server: any) {
     });
 
     io.use((socket, next) => {
-        console.log("Socker middleware executed")
+        logger.info("Socker middleware executed")
         const cookieHeader = socket.handshake.headers.cookie
         if (!cookieHeader) {
             return next(new Error("No cookie found"));
@@ -34,16 +35,16 @@ export function initializeSocket(server: any) {
 
     io.on("connection", (socket) => {
 
-        console.log("Client Connected:", socket.id);
+        logger.info(`Client Connected: ${socket.id}`);
 
         const userId = socket.data.user.userId
         if (userId) {
             socket.join(userId)
-            console.log("Joined Room: ", userId)
+            logger.info(`Joined Room: ${userId}`)
         }
 
         socket.on("disconnect", () => {
-            console.log("Disconnected:", socket.id);
+            logger.info(`Disconnected: ${socket.id}`);
         });
 
     });

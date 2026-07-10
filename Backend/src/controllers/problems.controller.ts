@@ -3,46 +3,23 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import Problem from '../models/problem.model';
 import ApiError from '../utils/ApiError';
-import axios from "axios"
 import { judgeQueue } from '../queue/judge.queue';
 import Submission from '../models/submission.model';
 import { publisher } from '../config/pubsub';
 import { runQueue } from '../queue/run.queue';
+import logger from '../config/logger';
 
 
-export const createProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { title, description, difficulty, tags, constraints, examples, testCases, starterCode } = req.body;
-
-    const existingProblem = await Problem.findOne({ title });
-
-    if (existingProblem) {
-        throw new ApiError(400, "Problem with this title already exists");
-    }
-
-    const problem = await Problem.create({
-        title,
-        description,
-        difficulty,
-        tags,
-        constraints,
-        examples,
-        starterCode,
-        testCases,
-        createdBy: req.user._id,
-    })
-
-    res.status(201).json({
-        success: true,
-        message: "Problem created successfully",
-    })
-
-})
 
 export const getOneProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
     const id = req.params.id;
     console.log("id: ",id)
     const problems = await Problem.findById(id)
-
+    if(!problems)
+    {
+        throw new ApiError(404, "No problem found")
+    }
+    logger.info("Problem found")
     res.status(200).json({
         success: true,
         problems
@@ -52,62 +29,19 @@ export const getOneProblem = asyncHandler(async (req: AuthRequest, res: Response
 export const getProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
     console.log("this works fine")
     const problems = await Problem.find()
-
+    if(!problems)
+    {
+        throw new ApiError(404, "No problems found")
+    }
+    logger.info("Problems found")
     res.status(200).json({
         success: true,
         problems
     })
 })
 
-export const updateProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { id } = req.params;
-    const problem = await Problem.findById(id);
-
-    if (!problem) {
-        throw new ApiError(404, "Problem not found");
-    }
-
-    if (problem.createdBy.toString() !== req.user._id.toString()) {
-        throw new ApiError(403, "You can only update problems you created");
-    }
-
-    const updatedProblem = await Problem.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true
-    })
-
-    res.status(200).json({
-        success: true,
-        message: "Problem updated successfully",
-        problem: updatedProblem
-    })
-
-})
-
-export const deleteProblem = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { id } = req.params;
-    const problem = await Problem.findById(id);
-
-    if (!problem) {
-        throw new ApiError(404, "Problem not found");
-    }
-
-    if (problem.createdBy.toString() !== req.user._id.toString()) {
-        throw new ApiError(403, "You can only delete problems you created");
-    }
-
-    await Problem.findByIdAndDelete(id);
-
-    res.status(200).json({
-        success: true,
-        message: "Problem deleted successfully"
-    })
-})
-
 export const runCode = asyncHandler(async (req: AuthRequest, res: Response) => {
-    console.log("run route hit",req.user)
     const { problemId, code, language } = req.body;
-    console.log("code: ",code)
 
     const problem = await Problem.findById(problemId);
 
@@ -119,20 +53,17 @@ export const runCode = asyncHandler(async (req: AuthRequest, res: Response) => {
     if (testcases.length === 0) {
         throw new ApiError(403, "testcases not found");
     }
-    console.log("Itna hua")
     const job = await runQueue.add("run",{
         problemId:problemId,code:code,language:language, userId:req.user._id
     })
-    console.log("Itna hua")
+    logger.info("Run code Submitted")
     return res.status(201).json({
         message:"Submitted"
     })
 })
 
 export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) => {
-    console.log("submit route hit",req.user)
     const { problemId, code,language } = req.body;
-    console.log("code: ",code)
     const problem = await Problem.findById(problemId);
     if (!problem) {
         throw new ApiError(403, "problem not found");
@@ -145,11 +76,16 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     const submission = await Submission.create({
         problemId,code,language,status:"Pending",problemName:problem.title
     })
+    if(!submission)
+    {
+        throw new ApiError(401,"Could not create submision")
+    }
+    logger.info("Submission created")
     await publisher.publish("submission-update",JSON.stringify({submission,userId: req.user._id}))
     const job = await judgeQueue.add("submission",{
-        submissionId:submission._id, userId:req.user._id
+        submissionId:submission._id, userId:req.user._id    
     })
-
+    logger.info("Submission created")
     return res.status(201).json({
         message:"Submitted",
         submissionId: submission._id
@@ -158,10 +94,10 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
 
 
 export const submissions = asyncHandler(async (req: AuthRequest, res: Response) => {
-    console.log("submit route hit",req.user)
+    
     const id = req.user._id;
     const problemId = req.params.id;
-    console.log("id: ",id)
+
     const problem = await Problem.findById(problemId);
     if (!problem) {
         throw new ApiError(403, "problem not found");
@@ -171,9 +107,9 @@ export const submissions = asyncHandler(async (req: AuthRequest, res: Response) 
         userId:id,
         problemId
     })
-
+    logger.info("Got submissions")
     return res.status(201).json({
-        message:"Submitted",
+        message:"Got submissions",
         submission:submission
     })
 })

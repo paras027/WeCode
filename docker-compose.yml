@@ -1,0 +1,42 @@
+services:
+  backend: 
+    build: ./Backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./Backend:/app
+      - /app/node_modules
+    env_file:
+      - ./Backend/.env
+    depends_on:
+      - redis
+  
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    
+  judge: 
+    build: ./judge_Service
+    container_name: judge
+    volumes:
+      - ./judge_Service:/app
+      - /app/node_modules
+    env_file:
+      - ./judge_Service/.env
+    depends_on:
+      - redis
+
+  frontend: 
+    build: ./Frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend

@@ -36,7 +36,7 @@ services:
     build: ./Frontend
     container_name: frontend
     ports:
-      - "5173:5173"
+      - "8080:8080"
 
     volumes:
       - ./Frontend:/app

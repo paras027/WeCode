@@ -9,7 +9,9 @@ const env={
     MONGO_URI:process.env.MONGO_URI || "",
     NODE_ENV:process.env.NODE_ENV || "development",
     REDIS_HOST:process.env.REDIS_HOST || "127.0.0.1",
-    REDIS_PORT:Number(process.env.REDIS_PORT) || 6379
+    REDIS_PORT:Number(process.env.REDIS_PORT) || 6379,
+    WORKSPACE: process.env.WORKSPACE_PATH!,
+    CONTAINER_WORKSPACE:process.env.CONTAINER_WORKSPACE
 }
 
 export default env;

@@ -9,7 +9,7 @@ export const worker = new Worker("runQueue", async (job) => {
     // console.log(" got the job here",job)
     console.log("Job user id----------------------: ", job.data.userId)
 
-
+    const subId = job.data.submissionId
     const probId = job.data.problemId;
     const problem = await Problem.findById(probId)
     if (!problem) {
@@ -19,7 +19,7 @@ export const worker = new Worker("runQueue", async (job) => {
     let testcases = problem?.examples || [];
     const code = job.data.code as string
     console.log(typeof (testcases));
-    const output = await submissionService(code, testcases, job.data.language!, problem.timeLimit, problem.memoryLimit);
+    const output = await submissionService(code, testcases, job.data.language!, problem.timeLimit, problem.memoryLimit,subId);
 
     console.log("Value checking: ", output)
     if (!output) {

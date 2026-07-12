@@ -24,8 +24,9 @@ services:
     build: ./judge_Service
     container_name: judge
     volumes:
-      - ./judge_Service:/app
+      - ./judge_Service:/judge_Service
       - /app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - redis
     
@@ -43,3 +44,5 @@ services:
       - /app/node_modules
     depends_on:
       - backend
+  
+  

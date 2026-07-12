@@ -5,14 +5,12 @@ export function runCode(command: string) {
     return new Promise((resolve) => {
 
         exec(command, (err, stdout, stderr) => {
-
             // ---------------- Runtime Errors ----------------
             if (err) {
 
                 const code = (err as any).code;
                 logger.error(err)
                 switch (code) {
-
                     // timeout command
                     case 124:
                         resolve({
@@ -20,7 +18,6 @@ export function runCode(command: string) {
                             output: ""
                         });
                         return;
-
                     // Docker OOM Kill
                     case 137:
                         resolve({

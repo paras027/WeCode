@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from "path";
 import {v4 as uuid } from "uuid";
+import env from '../../config/env';
 
-const folderPath = path.join(__dirname,"../../temp");
+const folderPath = env.CONTAINER_WORKSPACE!;
 
 if(!fs.existsSync(folderPath))
 {

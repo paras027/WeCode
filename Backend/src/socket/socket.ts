@@ -13,7 +13,8 @@ export function initializeSocket(server: any) {
     });
 
     io.use((socket, next) => {
-        logger.info("Socker middleware executed")
+        try{
+            logger.info("Socker middleware executed")
         const cookieHeader = socket.handshake.headers.cookie
         if (!cookieHeader) {
             return next(new Error("No cookie found"));
@@ -31,6 +32,12 @@ export function initializeSocket(server: any) {
         console.log(payload)
         socket.data.user = payload
         next();
+        }
+        catch(e)
+        {
+            throw new Error("Unauthorized")
+        }
+        
     })
 
     io.on("connection", (socket) => {

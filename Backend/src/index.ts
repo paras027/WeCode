@@ -9,7 +9,7 @@ import getMe from './routes/user.routes'
 import cors from "cors"
 import cookieParser from 'cookie-parser';
 import helmet from "helmet"
-import { generalLimiter } from './middlewares/rateLimiter.middleware';
+import { serverAdapter } from './config/bullBoard';
 
 const app = express();
 app.use(cors({
@@ -28,7 +28,7 @@ app.get('/test',asyncHandler(async (req,res)=>{
     })
     res.json(user);
 }));
-
+app.use("/admin/queues",serverAdapter.getRouter())
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user",getMe)
 app.use("/api/v1/problems", problemRoutes);

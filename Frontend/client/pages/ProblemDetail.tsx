@@ -1051,7 +1051,7 @@ function SubmitResult({ sub, onClear }) {
         )}
       </div>
       {<div className="flex flex-col gap-2">
-        { sub.result?.map((res, i) => (
+        { sub.verdict !== 'Passed' && sub.result?.map((res, i) => (
           <CaseCard key={i} res={res} index={i} passed={res.output === res.expected} />
         ))}
       </div>}  

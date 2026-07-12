@@ -1,5 +1,6 @@
 import path from "path"
 import dockerOptions from "./dockerCommand.utils";
+import env from "../config/env";
 
 export function compileCommand(language: string, folderPath: string, fileName: string, memoryLimit: number) {
     let compileCom: string = ""
@@ -7,7 +8,7 @@ export function compileCommand(language: string, folderPath: string, fileName: s
     const options = dockerOptions(memoryLimit)
     switch (language) {
         case "cpp":
-            compileCom = `docker run ${options} -v "${folderPath}:/app/temp" judge-image bash -c "g++ /app/temp/${fileName} -o /app/temp/${file}.exe"`;
+            compileCom = `docker run ${options} -v "${env.WORKSPACE}:${env.CONTAINER_WORKSPACE}" judge-image bash -c "g++ ${env.CONTAINER_WORKSPACE}/${fileName} -o ${env.CONTAINER_WORKSPACE}/${file}.exe"`;
             // runCommand = "...";
             break;
 
@@ -21,7 +22,7 @@ export function compileCommand(language: string, folderPath: string, fileName: s
 
         case "java":
             compileCom =
-                `docker run ${options} -v "${folderPath}:/app/temp" judge-image bash -c "javac /app/temp/Main.java"`;
+                `docker run ${options} -v "${env.WORKSPACE}:${env.CONTAINER_WORKSPACE}" judge-image bash -c "javac ${env.CONTAINER_WORKSPACE}/Main.java"`;
             break;
 
         default:
@@ -40,22 +41,22 @@ export function runCommandMethod(language: string, folderPath: string, fileName:
 
         case "cpp":
             runCommand =
-                `docker run ${options} -v "${folderPath}:/app/temp" judge-image bash -c "timeout ${timeout}s /usr/bin/time -q -f '%e %M' -o /app/temp/${file}_stats.txt /app/temp/${file}.exe < /app/temp/${inputfileName}"`;
+                `docker run ${options} -v "${env.WORKSPACE}:${env.CONTAINER_WORKSPACE}" judge-image bash -c "timeout ${timeout}s /usr/bin/time -q -f '%e %M' -o ${env.CONTAINER_WORKSPACE}/${file}_stats.txt ${env.CONTAINER_WORKSPACE}/${file}.exe < ${env.CONTAINER_WORKSPACE}/${inputfileName}"`;
             break;
 
         case "python":
             runCommand =
-                `docker run ${options} -v "${folderPath}:/app/temp" judge-image bash -c "/usr/bin/time -q -f '%e %M' -o /app/temp/${file}_stats.txt timeout ${timeout}s python3 /app/temp/${fileName} < /app/temp/${inputfileName}"`;
+                `docker run ${options} -v "${env.WORKSPACE}:${env.CONTAINER_WORKSPACE}" judge-image bash -c "/usr/bin/time -q -f '%e %M' -o ${env.CONTAINER_WORKSPACE}/${file}_stats.txt timeout ${timeout}s python3 ${env.CONTAINER_WORKSPACE}/${fileName} < ${env.CONTAINER_WORKSPACE}/${inputfileName}"`;
             break;
 
         case "javascript":
             runCommand =
-                `docker run ${options} -v "${folderPath}:/app/temp" judge-image bash -c "/usr/bin/time -q -f '%e %M' -o /app/temp/${file}_stats.txt timeout ${timeout}s node /app/temp/${fileName} < /app/temp/${inputfileName}"`;
+                `docker run ${options} -v "${env.WORKSPACE}:${env.CONTAINER_WORKSPACE}" judge-image bash -c "/usr/bin/time -q -f '%e %M' -o ${env.CONTAINER_WORKSPACE}/${file}_stats.txt timeout ${timeout}s node ${env.CONTAINER_WORKSPACE}/${fileName} < ${env.CONTAINER_WORKSPACE}/${inputfileName}"`;
             break;
 
         case "java":
             runCommand =
-                `docker run ${options} -v "${folderPath}:/app/temp" judge-image bash -c "/usr/bin/time -q -f '%e %M' -o /app/temp/${file}_stats.txt timeout ${timeout}s java -cp /app/temp Main < /app/temp/${inputfileName}"`;
+                `docker run ${options} -v "${env.WORKSPACE}:${env.CONTAINER_WORKSPACE}" judge-image bash -c "/usr/bin/time -q -f '%e %M' -o ${env.CONTAINER_WORKSPACE}/${file}_stats.txt timeout ${timeout}s java -cp ${env.CONTAINER_WORKSPACE} Main < ${env.CONTAINER_WORKSPACE}/${inputfileName}"`;
             break;
 
         default:

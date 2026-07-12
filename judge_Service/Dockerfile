@@ -1,6 +1,8 @@
 FROM node:22-alpine
 
-WORKDIR /app
+WORKDIR /judge_Service
+
+RUN apk add --no-cache docker-cli
 
 COPY package*.json .
 

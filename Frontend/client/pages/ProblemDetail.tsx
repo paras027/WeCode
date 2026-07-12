@@ -93,7 +93,7 @@
 //             <div><span className="text-muted-foreground">Your Output</span><p className="font-semibold text-foreground">{res.output}</p></div>
 //           </div>
 //         })}
-        
+
 //      </div>
 //       </div>
 //       <div className="rounded-lg border border-border overflow-hidden">
@@ -507,7 +507,7 @@
 //             <div><span className="text-muted-foreground">Your Output</span><p className="font-semibold text-foreground">{res.output}</p></div>
 //           </div>
 //         })}
-        
+
 //      </div>
 //       </div>
 //       <div className="rounded-lg border border-border overflow-hidden">
@@ -891,7 +891,7 @@ import {
 import Editor from "@monaco-editor/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import socket from '@/utils/socket';
-
+import { formatDistanceToNow } from "date-fns";
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const testCases = [
@@ -903,33 +903,50 @@ const examples = [
 ];
 
 const VERDICT = {
-  Passed:               { icon: CheckCircle2, color: 'text-green-500',  bg: 'bg-green-500/10',  border: 'border-green-500/30',  label: 'Accepted' },
-  'Wrong Answer':       { icon: XCircle,      color: 'text-red-500',    bg: 'bg-red-500/10',    border: 'border-red-500/30',    label: 'Wrong Answer' },
-  'TLE':{ icon: Clock,        color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', label: 'Time Limit Exceeded' },
-  'Runtime Error':                { icon: XCircle,      color: 'text-red-400',    bg: 'bg-red-400/10',    border: 'border-red-400/30',    label: 'Runtime Error' },
-  'Compilation Error':  { icon: XCircle,      color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Compilation Error' },
-  'Memory Limit Exceeded':  { icon: XCircle,      color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Memory Limit Exceeded' },
-  Pending:              { icon: Loader2,      color: 'text-blue-400',   bg: 'bg-blue-400/10',   border: 'border-blue-400/30',   label: 'Pending' },
-  'Running Test Cases':  { icon: Loader2,      color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Running Test Cases' },
-  'Compiling':  { icon: Loader2,      color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Compiling' },
-  'Running':              { icon: Loader2,      color: 'text-blue-400',   bg: 'bg-blue-400/10',   border: 'border-blue-400/30',   label: 'Running' },
+  'Passed': { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/30', label: 'Accepted' },
+  'Wrong Answer': { icon: XCircle, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/30', label: 'Wrong Answer' },
+  'TLE': { icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', label: 'Time Limit Exceeded' },
+  'Runtime Error': { icon: XCircle, color: 'text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/30', label: 'Runtime Error' },
+  'Compilation Error': { icon: XCircle, color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Compilation Error' },
+  'Memory Limit Exceeded': { icon: XCircle, color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Memory Limit Exceeded' },
+  'Pending': { icon: Loader2, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/30', label: 'Pending' },
+  'Running Test Cases': { icon: Loader2, color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Running Test Cases' },
+  'Compiling': { icon: Loader2, color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Compiling' },
+  'Running': { icon: Loader2, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/30', label: 'Running' },
 };
 
 
 const DIFFICULTY = {
-  Easy:   'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30',
+  Easy: 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30',
   Medium: 'bg-amber-500/15   text-amber-400   ring-1 ring-amber-500/30',
-  Hard:   'bg-red-500/15     text-red-400     ring-1 ring-red-500/30',
+  Hard: 'bg-red-500/15     text-red-400     ring-1 ring-red-500/30',
 };
 
 // ─── Small reusable components ───────────────────────────────────────────────
 
-function VerdictBadge({ status }) {
-  const v = VERDICT[status]
+function VerdictBadge({ status }: { status?: string }) {
+  const verdict = status ?? "Pending";
+
+  const v = VERDICT[verdict] ?? {
+    icon: Loader2,
+    color: "text-blue-400",
+    bg: "bg-blue-400/10",
+    border: "border-blue-400/30",
+    label: verdict,
+  };
+
   const Icon = v.icon;
+
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border ${v.color} ${v.bg} ${v.border}`}>
-      <Icon className={`h-3.5 w-3.5 ${status === 'Pending' ? 'animate-spin' : ''}`} />
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border ${v.color} ${v.bg} ${v.border}`}
+    >
+      <Icon
+        className={`h-3.5 w-3.5 ${["Pending", "Running", "Compiling", "Running Test Cases"].includes(verdict)
+            ? "animate-spin"
+            : ""
+          }`}
+      />
       {v.label}
     </span>
   );
@@ -987,16 +1004,17 @@ function RunOutput({ activeRun, isRunning, onClear }) {
     );
   }
 
-  const v = VERDICT[activeRun.verdict] || VERDICT['Pending'];
+  const verdict = activeRun.verdict ?? activeRun.status ?? "Pending";
+  const v = VERDICT[verdict] ?? VERDICT["Pending"];
   const passedCount = activeRun.result?.filter(r => r.output === r.expected).length ?? 0;
-  const totalCount  = activeRun.result?.length ?? 0;
+  const totalCount = activeRun.result?.length ?? 0;
 
   return (
     <div className="flex flex-col gap-3 p-4 overflow-auto h-full">
       {/* Verdict banner */}
       <div className={`rounded-xl border p-3.5 ${v.bg} ${v.border}`}>
         <div className="flex items-center justify-between">
-          <VerdictBadge status={activeRun.verdict} />
+          <VerdictBadge status={verdict} />
           <button onClick={onClear} className="text-xs text-muted-foreground hover:text-foreground transition-colors">Clear</button>
         </div>
         {activeRun.verdict === 'Passed' && (
@@ -1029,15 +1047,16 @@ function RunOutput({ activeRun, isRunning, onClear }) {
 
 function SubmitResult({ sub, onClear }) {
   if (!sub) return null;
-  const v = sub.verdict?VERDICT[sub.verdict]:VERDICT[sub.status];
+  const verdict = sub.verdict ?? sub.status ?? "Pending";
+  const v = VERDICT[verdict] ?? VERDICT["Pending"];
   const passedCount = sub.result?.filter(r => r.output === r.expected).length ?? 0;
-  const totalCount  = sub.result?.length ?? 0;
+  const totalCount = sub.result?.length ?? 0;
 
   return (
     <div className="flex flex-col gap-3 p-4 overflow-auto h-full">
       <div className={`rounded-xl border p-4 ${v.bg} ${v.border}`}>
         <div className="flex items-center justify-between">
-          <VerdictBadge status={sub.verdict?sub.verdict:sub.status} />
+          <VerdictBadge status={verdict} />
           <button onClick={onClear} className="text-xs text-muted-foreground hover:text-foreground transition-colors">Clear</button>
         </div>
         {sub.verdict === 'Passed' && (
@@ -1047,7 +1066,7 @@ function SubmitResult({ sub, onClear }) {
             <div><p className="text-xs text-muted-foreground">Language</p><p className="font-semibold text-foreground">{sub.language}</p></div>
           </div>
         )}
-        { sub.error && (
+        {sub.error && (
           <pre className="mt-3 text-xs text-red-400 font-mono whitespace-pre-wrap bg-black/20 rounded p-2">{sub.error}</pre>
         )}
         {totalCount > 0 && (
@@ -1055,10 +1074,10 @@ function SubmitResult({ sub, onClear }) {
         )}
       </div>
       {<div className="flex flex-col gap-2">
-        { sub.verdict !== 'Passed' && sub.result?.map((res, i) => (
+        {sub.verdict !== 'Passed' && sub.result?.map((res, i) => (
           <CaseCard key={i} res={res} index={i} passed={res.output === res.expected} />
         ))}
-      </div>}  
+      </div>}
     </div>
   );
 }
@@ -1066,7 +1085,7 @@ function SubmitResult({ sub, onClear }) {
 // ─── Submissions history (left panel) ────────────────────────────────────────
 
 function SubmissionHistoryList({ history, onSelect }) {
-  console.log("Sub history: ",history)
+  console.log("Sub history: ", history)
   if (history.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-2 text-center">
@@ -1076,11 +1095,17 @@ function SubmissionHistoryList({ history, onSelect }) {
       </div>
     );
   }
+
   return (
     <div className="flex flex-col gap-2">
       {history.map((sub, i) => {
-        const v = VERDICT[sub.verdict] || VERDICT['Pending'];
+        const v = VERDICT[sub.verdict ?? sub.status] ?? VERDICT["Pending"];
         const Icon = v.icon;
+        const date = sub.updatedAt;
+
+        const timeAgo = formatDistanceToNow(new Date(date), {
+          addSuffix: true,
+        });
         return (
           <button
             key={i}
@@ -1088,13 +1113,13 @@ function SubmissionHistoryList({ history, onSelect }) {
             className="w-full text-left rounded-xl border border-border bg-card p-3.5 hover:border-primary/40 hover:bg-secondary/30 transition-all duration-150"
           >
             <div className="flex items-center justify-between mb-2">
-              <VerdictBadge status={sub.verdict} />
-              <span className="text-xs text-muted-foreground">{sub.submittedAt || 'Just now'}</span>
+              <VerdictBadge status={sub.verdict ?? sub.status} />
+              <span className="text-xs text-muted-foreground">{timeAgo || 'Just now'}</span>
             </div>
             <div className="flex gap-4 text-xs text-muted-foreground">
               <span className="rounded bg-secondary/60 px-1.5 py-0.5 font-medium">{sub.language}</span>
               {sub.runtime && <span>Runtime: <span className="text-foreground font-medium">{sub.runtime}</span></span>}
-              {sub.memory  && <span>Memory: <span className="text-foreground font-medium">{sub.memory}</span></span>}
+              {sub.memory && <span>Memory: <span className="text-foreground font-medium">{sub.memory}</span></span>}
             </div>
           </button>
         );
@@ -1179,17 +1204,17 @@ export default function ProblemDetail() {
   };
 
   const id = useParams();
-  const [problem, setProblem]                   = useState(dummy);
-  const [language, setLanguage]                 = useState('javascript');
-  const [code, setCode]                         = useState(dummy.starterCode);
+  const [problem, setProblem] = useState(dummy);
+  const [language, setLanguage] = useState('javascript');
+  const [code, setCode] = useState(dummy.starterCode);
   const [submissionHistory, setSubmissionHistory] = useState([]);   // array for history
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
-  const [loadingRun, setLoadingRun]             = useState(false);
+  const [loadingRun, setLoadingRun] = useState(false);
   const [activeSubmission, setActiveSubmission] = useState(null);   // detail drill-down (left)
   const [latestSubmitResult, setLatestSubmitResult] = useState(null); // shown in right console
-  const [activeRun, setActiveRun]               = useState(null);
-  const [isSubmitting, setIsSubmitting]         = useState(false);
-  const [isRunning, setIsRunning]               = useState(false);
+  const [activeRun, setActiveRun] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
 
   // left panel: 'problem' | 'submissions'
   const [leftTab, setLeftTab] = useState('problem');
@@ -1236,10 +1261,10 @@ export default function ProblemDetail() {
     try {
       const res = await api.get(`/problems/submissions/${id.id}`,
         {
-          withCredentials:true
+          withCredentials: true
         }
       );
-      console.log("fetched: ",res.data)
+      console.log("fetched: ", res.data)
       setSubmissionHistory(res.data.submission || []);
     } catch (e) {
       console.log(e);
@@ -1308,12 +1333,17 @@ export default function ProblemDetail() {
               {['problem', 'submissions'].map((t) => (
                 <button
                   key={t}
-                  onClick={() => { setLeftTab(t); setActiveSubmission(null); }}
-                  className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 ${
-                    leftTab === t
+                  onClick={() => {
+                    setLeftTab(t);
+                    if (t === "submissions") {
+                      fetchSubmissions();
+                    }
+                    setActiveSubmission(null);
+                  }}
+                  className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 ${leftTab === t
                       ? 'border-primary text-foreground'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
-                  }`}
+                    }`}
                 >
                   {t}
                   {t === 'submissions' && submissionHistory.length > 0 && (
@@ -1417,7 +1447,6 @@ export default function ProblemDetail() {
                   <SelectItem value="python">Python</SelectItem>
                   <SelectItem value="java">Java</SelectItem>
                   <SelectItem value="cpp">C++</SelectItem>
-                  <SelectItem value="go">Go</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1443,11 +1472,10 @@ export default function ProblemDetail() {
                     <button
                       key={t}
                       onClick={() => setConsoleTab(t)}
-                      className={`px-3 py-1.5 text-xs font-medium capitalize transition-colors border-b-2 ${
-                        consoleTab === t
+                      className={`px-3 py-1.5 text-xs font-medium capitalize transition-colors border-b-2 ${consoleTab === t
                           ? 'border-primary text-foreground'
                           : 'border-transparent text-muted-foreground hover:text-foreground'
-                      }`}
+                        }`}
                     >
                       {t === 'testcases' ? 'Test Cases' : 'Output'}
                     </button>
@@ -1530,5 +1558,4 @@ export default function ProblemDetail() {
       </div>
     </MainLayout>
   );
-}  
- 
+}

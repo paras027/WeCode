@@ -910,7 +910,11 @@ const VERDICT = {
   'Compilation Error':  { icon: XCircle,      color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Compilation Error' },
   'Memory Limit Exceeded':  { icon: XCircle,      color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Memory Limit Exceeded' },
   Pending:              { icon: Loader2,      color: 'text-blue-400',   bg: 'bg-blue-400/10',   border: 'border-blue-400/30',   label: 'Pending' },
+  'Running Test Cases':  { icon: Loader2,      color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Running Test Cases' },
+  'Compiling':  { icon: Loader2,      color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/30', label: 'Compiling' },
+  'Running':              { icon: Loader2,      color: 'text-blue-400',   bg: 'bg-blue-400/10',   border: 'border-blue-400/30',   label: 'Running' },
 };
+
 
 const DIFFICULTY = {
   Easy:   'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30',
@@ -921,7 +925,7 @@ const DIFFICULTY = {
 // ─── Small reusable components ───────────────────────────────────────────────
 
 function VerdictBadge({ status }) {
-  const v = VERDICT[status] || VERDICT['Pending'];
+  const v = VERDICT[status]
   const Icon = v.icon;
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border ${v.color} ${v.bg} ${v.border}`}>
@@ -1025,7 +1029,7 @@ function RunOutput({ activeRun, isRunning, onClear }) {
 
 function SubmitResult({ sub, onClear }) {
   if (!sub) return null;
-  const v = VERDICT[sub.verdict] || VERDICT['Pending'];
+  const v = sub.verdict?VERDICT[sub.verdict]:VERDICT[sub.status];
   const passedCount = sub.result?.filter(r => r.output === r.expected).length ?? 0;
   const totalCount  = sub.result?.length ?? 0;
 
@@ -1033,7 +1037,7 @@ function SubmitResult({ sub, onClear }) {
     <div className="flex flex-col gap-3 p-4 overflow-auto h-full">
       <div className={`rounded-xl border p-4 ${v.bg} ${v.border}`}>
         <div className="flex items-center justify-between">
-          <VerdictBadge status={sub.verdict} />
+          <VerdictBadge status={sub.verdict?sub.verdict:sub.status} />
           <button onClick={onClear} className="text-xs text-muted-foreground hover:text-foreground transition-colors">Clear</button>
         </div>
         {sub.verdict === 'Passed' && (

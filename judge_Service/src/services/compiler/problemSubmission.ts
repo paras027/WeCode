@@ -15,7 +15,7 @@ export async function problemSubmission(jobData:JobData){
         userId:jobData.userId,
         status: "Running"
     }, { new: true });
-
+    logger.info(`submission update: ${submission}`)
     if (!submission) {
         logger.error("Submission not found")
        throw new Error("Submission not found")

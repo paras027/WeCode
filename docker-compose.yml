@@ -28,6 +28,7 @@ services:
     container_name: judge
     volumes:
       - ./judge_Service:/judge_Service
+      - /judge_Service/node_modules
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - redis

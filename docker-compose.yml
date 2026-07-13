@@ -1,48 +1,37 @@
 services:
+
+  frontend:
+    build: ./Frontend
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    
   backend: 
     build: ./Backend
     container_name: backend
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./Backend:/app
-      - /app/node_modules
 
     depends_on:
       - redis
-
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
   
   redis:
     image: redis:7-alpine
     container_name: redis
-    ports:
-      - "6379:6379"
-    
+    restart: unless-stopped
   judge-service: 
     build: ./judge_Service
     container_name: judge
     volumes:
       - ./judge_Service:/judge_Service
-      - /app/node_modules
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - redis
-    
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
-
-  frontend: 
-    build: ./Frontend
-    container_name: frontend
-    ports:
-      - "8080:8080"
-
-    volumes:
-      - ./Frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-  
   

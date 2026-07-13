@@ -3,3 +3,4 @@ node_modules
 temp
 .env.development
 .env.production
+dist

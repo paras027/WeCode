@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { mockUser, mockSubmissions } from '@/data/mockData';
 import axios from 'axios';
+import api from '@/api/axios';
 
 const achievements = [
   { id: 1, name: 'First Submission', description: 'Submitted your first solution', icon: '🎯' },
@@ -31,7 +32,7 @@ export default function Profile() {
 
   async function getDetails() {
     try {
-      const details = await axios.get("http://localhost:5000/api/v1/user/details", {
+      const details = await api.get("/user/details", {
         withCredentials: true
       })
       console.log("details of user: ", details.data)

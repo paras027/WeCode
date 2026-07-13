@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import axios from "axios";
+import api from "@/api/axios";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -16,8 +17,8 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
 
-      const ans = await axios.post(
-        "http://localhost:5000/api/v1/auth/forgot-password",
+      const ans = await api.post(
+        "/auth/forgot-password",
         {
           email,
         }

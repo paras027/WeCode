@@ -1,10 +1,12 @@
 import axios from "axios";
 import {toast} from "sonner"
+
 const api = axios.create({
-    baseURL: "http://localhost:5000/api/v1",
+    baseURL: import.meta.env.VITE_BACKEND_URL,
     withCredentials: true,
 });
 
+console.log("backend url: ",import.meta.env.VITE_BACKEND_URL)
 api.interceptors.response.use(
     (response) => response,
 
@@ -21,8 +23,8 @@ api.interceptors.response.use(
 
             try {
                 console.log("refresh token called")
-                const val = await axios.post(
-                    "http://localhost:5000/api/v1/auth/refresh-token",{},
+                const val = await api.post(
+                    "/auth/refresh-token",{},
                     {
                         withCredentials: true,
                     }

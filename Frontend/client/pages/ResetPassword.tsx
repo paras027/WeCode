@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import axios from "axios";
+import api from "@/api/axios";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -29,8 +30,8 @@ export default function ResetPassword() {
     try {
       setLoading(true);
 
-      await axios.post(
-        `http://localhost:5000/api/v1/auth/reset-password/${token}`,
+      await api.post(
+        `/auth/reset-password/${token}`,
         {
           password,
         }

@@ -41,7 +41,7 @@ export default function ResetPassword() {
 
       navigate("/login");
     } catch (err) {
-      console.log(err);
+
       alert("Invalid or expired reset link.");
     } finally {
       setLoading(false);

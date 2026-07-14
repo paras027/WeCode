@@ -22,7 +22,6 @@ export default function Navbar() {
       setUser(null)
       navigate("/login");
     } catch (err) {
-      console.log(err);
     }
   };
 

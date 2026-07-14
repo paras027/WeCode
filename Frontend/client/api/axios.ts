@@ -22,14 +22,13 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                console.log("refresh token called")
                 const val = await api.post(
                     "/auth/refresh-token",{},
                     {
                         withCredentials: true,
                     }
                 );
-                console.log("refresh token changed",val.data.accessToken)
+            
                 return api(originalRequest);
 
             } catch(e) {

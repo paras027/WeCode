@@ -38,7 +38,7 @@ export default function Problems() {
   }, [])
   async function getProblems() {
     const getData = await api.get("/problems/problem");
-    console.log("data of problems: ", getData)
+
     setProblems(getData.data.problems)
   }
   function submit(id: string) {

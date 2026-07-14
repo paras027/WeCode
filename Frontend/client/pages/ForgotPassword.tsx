@@ -23,12 +23,11 @@ export default function ForgotPassword() {
           email,
         }
       );
-      console.log("Ans: ",ans)
       alert(
         ans.data.message
       );
     } catch (err) {
-      console.log(err);
+ 
     } finally {
       setLoading(false);
     }

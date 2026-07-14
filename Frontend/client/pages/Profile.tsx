@@ -35,15 +35,14 @@ export default function Profile() {
       const details = await api.get("/user/details", {
         withCredentials: true
       })
-      console.log("details of user: ", details.data)
       setUserDetails(details.data)
     }
     catch (e) {
-      console.log(e);
+
     }
 
   }
-  console.log(userDetails.user.name)
+
   let c = 0;
   let c1 = 0;
   for (let subm of userDetails.sub) {

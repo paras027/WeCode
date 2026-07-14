@@ -1227,7 +1227,7 @@ export default function ProblemDetail() {
     fetchSubmissions();
 
     socket.on('submission-update', (data) => {
-      console.log('Received:', data);
+
       const sub = data.submission;
       setLatestSubmitResult(sub);
       setConsoleTab('output');
@@ -1235,7 +1235,7 @@ export default function ProblemDetail() {
     });
 
     socket.on('run-update', (data) => {
-      console.log('run Received:', data);
+
       setActiveRun(data.newdata);
       setConsoleTab('output');
       setLoadingRun(false);
@@ -1249,10 +1249,10 @@ export default function ProblemDetail() {
     try {
       const res = await api.get(`/problems/problem/${id.id}`);
       setProblem(res.data.problems);
-      console.log('problems check:', res.data.problems);
+
       setCode(res.data.problems.starterCode?.[language] || '');
     } catch (e) {
-      console.error(e);
+
     }
   }
 
@@ -1264,10 +1264,10 @@ export default function ProblemDetail() {
           withCredentials: true
         }
       );
-      console.log("fetched: ", res.data)
+
       setSubmissionHistory(res.data.submission || []);
     } catch (e) {
-      console.log(e);
+
       setSubmissionHistory([]);
     } finally {
       setLoadingSubmissions(false);
@@ -1282,7 +1282,6 @@ export default function ProblemDetail() {
     try {
       await api.post('/problems/run', { code, problemId: id.id, language }, { withCredentials: true });
     } catch (e) {
-      console.error(e);
       setIsRunning(false);
     }
   };
@@ -1295,7 +1294,6 @@ export default function ProblemDetail() {
     try {
       await api.post('/problems/submit', { code, problemId: id.id, language }, { withCredentials: true });
     } catch (e) {
-      console.error(e);
     } finally {
       setIsSubmitting(false);
     }

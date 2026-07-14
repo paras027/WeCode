@@ -30,10 +30,10 @@ export default function Dashboard() {
   const dummy = {
     sub: [],
     user: {
-      email: "dasdsadsa@gmail.com",
-      name: "paras07asda",
-      role: "user",
-      username: "paras07asda"
+      email: "",
+      name: "",
+      role: "",
+      username: ""
     }
   }
   const [userDetails, setUserDetails] = useState(dummy);

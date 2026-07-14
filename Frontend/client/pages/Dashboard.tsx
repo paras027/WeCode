@@ -67,6 +67,9 @@ export default function Dashboard() {
       c1++;
     }
   }
+  if (!userDetails) {
+  return <div>Loading...</div>;
+}
   return (
     <MainLayout>
       <div className="space-y-8 p-6">

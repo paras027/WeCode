@@ -55,8 +55,10 @@ export default function Dashboard() {
     catch (e) {
       console.log(e)
     }
-
   }
+    if (!userDetails) {
+  return <div>Loading...</div>;
+}
   let c = 0;
   let c1 = 0;
   for (let subm of userDetails.sub) {
@@ -67,9 +69,7 @@ export default function Dashboard() {
       c1++;
     }
   }
-  if (!userDetails) {
-  return <div>Loading...</div>;
-}
+
   return (
     <MainLayout>
       <div className="space-y-8 p-6">

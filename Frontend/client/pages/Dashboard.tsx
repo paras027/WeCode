@@ -52,6 +52,7 @@ export default function Dashboard() {
       setUserDetails(details.data)
     }
     catch (e) {
+      console.log(e)
     }
 
   }

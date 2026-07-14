@@ -21,16 +21,20 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           script: |
+            set -e
+
             cd ~/WeCode
 
-            echo "Pulling latest code..."
-            git pull origin main
+            echo "Fetching latest code..."
+            git fetch origin
 
-            echo "Stopping containers..."
-            docker compose down
+            echo "Resetting to latest commit..."
+            git reset --hard origin/main
 
             echo "Building and starting containers..."
             docker compose up -d --build
 
             echo "Removing dangling images..."
             docker image prune -f
+
+            echo "Deployment completed successfully!"

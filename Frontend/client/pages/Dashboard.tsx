@@ -15,6 +15,18 @@ import StatCard from '@/components/dashboard/StatCard';
 import api from '@/api/axios';
 import { mockUser } from '@/data/mockData';
 
+interface User {
+  email: string;
+  name: string;
+  role: string;
+  username: string;
+}
+
+interface DashboardData {
+  sub: any[]; // Replace `any` with your Submission interface later
+  user: User;
+}
+
 const activityData = [
   { date: 'Mon', problems: 2 },
   { date: 'Tue', problems: 3 },
@@ -27,16 +39,7 @@ const activityData = [
 
 export default function Dashboard() {
 
-  const dummy = {
-    sub: [],
-    user: {
-      email: "",
-      name: "",
-      role: "",
-      username: ""
-    }
-  }
-  const [userDetails, setUserDetails] = useState(dummy);
+  const [userDetails, setUserDetails] = useState<DashboardData | null>(null);
   useEffect(() => {
     getDetails()
   }, [])

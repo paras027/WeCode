@@ -49,7 +49,7 @@ export default function Dashboard() {
       const details = await api.get("/user/details", {
         withCredentials: true
       })
-      console.log(details)
+
       setUserDetails(details.data)
     }
     catch (e) {

@@ -68,7 +68,7 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     if (!problem) {
         throw new ApiError(403, "problem not found");
     }
-    const testcases = problem.testCases;
+    const testcases = problem.testCases;  
     if (testcases.length === 0) {
         throw new ApiError(403, "testcases not found");
     }

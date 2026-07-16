@@ -76,7 +76,7 @@ export const submitCode = asyncHandler(async (req: AuthRequest, res: Response) =
     const submission = await Submission.create({
         problemId,code,language,status:"Pending",problemName:problem.title
     })
-    if(!submission)
+    if(!submission) 
     {
         throw new ApiError(401,"Could not create submision")
     }

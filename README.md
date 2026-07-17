@@ -71,19 +71,59 @@ core backend architecture from scratch.
 
 ------------------------------------------------------------------------
 
-# 🎥 Demo
+# 🎥 Demo & Live Preview
 
-Replace this section with:
+## 🎬 Project Demo
 
--   Demo Link -- [Demo](https://youtu.be/gRpMz6Erv70)
-    
--   Live Deployment URL -- https://wecodee.duckdns.org
--   Screenshots
-   ![alt text](image.png)
-   ![alt text](image-1.png)
-   ![alt text](image-2.png)
-   ![alt text](image-3.png)
-   ![alt text](image-4.png)
+📺 **Watch the complete 2-minute walkthrough**
+
+👉 **[Watch Demo on YouTube](https://youtu.be/gRpMz6Erv70)**
+
+---
+
+## 🌐 Live Application
+
+🚀 **Try WeCode Live**
+
+👉 **https://wecodee.duckdns.org**
+
+> **Demo Credentials (if applicable):**
+>
+> Email: `demo@example.com`
+>
+> Password: `asdfghjkL`
+
+---
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+
+![Home Page](./assets/home.png)
+
+---
+
+### 🔐 Login
+
+![Login](./assets/login.png)
+
+---
+
+### 💻 Problems
+
+![Code Editor](./assets/problems.png)
+
+---
+
+### ⚡ Submission Result
+
+![Submission Result](./assets/submission.png)
+
+---
+
+### 👤 Dashboard
+
+![Dashboard](./assets/dashboard.png)
 ------------------------------------------------------------------------
 
 # ✨ Features

@@ -95,7 +95,7 @@ core backend architecture from scratch.
 
 ---
 
-## 📸 Screenshots
+## 📸 Screenshots 
 
 ### 🏠 Home Page
 

@@ -21,11 +21,10 @@
 10. BullMQ Queue
 11. Redis Pub/Sub
 12. Real-time Updates
-13. Folder Structure
+13. Folder Structure  
 14. Engineering Challenges
-15. Tech Stack
-16. Local Setup
-17. Environment Variables
+15. Tech Stack 
+17. Environment Variables 
 18. Deployment
 19. Future Improvements
 

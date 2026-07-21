@@ -1376,7 +1376,7 @@ export default function ProblemDetail() {
                           </p>
                           <p className="mt-1.5 text-xs font-mono">
                             Output: <div className="whitespace-pre-wrap font-mono text-sm">
-                              {tc.input}
+                              {tc.output}
                             </div>
                           </p>
                         </div>
@@ -1509,11 +1509,15 @@ export default function ProblemDetail() {
                         <div className="grid grid-cols-2 gap-3 text-xs font-mono">
                           <div>
                             <p className="text-muted-foreground mb-1">Input</p>
-                            <p className="text-foreground">{JSON.stringify(tc.input)}</p>
+                            <div className="whitespace-pre-wrap font-mono text-sm text-foreground">
+                              {tc.input}
+                            </div>
                           </div>
                           <div>
                             <p className="text-muted-foreground mb-1">Expected</p>
-                            <p className="text-green-400">{JSON.stringify(tc.output)}</p>
+                            <div className="whitespace-pre-wrap font-mono text-sm text-green-500">
+                              {tc.output}
+                            </div>
                           </div>
                         </div>
                       </div>

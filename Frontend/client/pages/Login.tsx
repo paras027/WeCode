@@ -162,14 +162,6 @@ setUser(null);
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        {/* <div className="space-y-2">
-          <Button variant="outline" className="w-full">
-            Sign in with Google
-          </Button>
-          <Button variant="outline" className="w-full">
-            Sign in with GitHub
-          </Button>
-        </div> */}
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don't have an account?{' '}

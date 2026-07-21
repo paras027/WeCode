@@ -14,18 +14,20 @@ const achievements = [
   { id: 3, name: 'Month Master', description: 'Solved 20 problems in a month', icon: '👑' },
   { id: 4, name: 'Consistency', description: '14-day solving streak', icon: '🔥' },
 ];
+interface User {
+  email: string;
+  name: string;
+  role: string;
+  username: string;
+}
+
+interface DashboardData {
+  sub: any[]; // Replace `any` with your Submission interface later
+  user: User;
+}
 
 export default function Profile() {
-  const dummy = {
-    sub: [],
-    user: {
-      email: "dasdsadsa@gmail.com",
-      name: "paras07asda",
-      role: "user",
-      username: "paras07asda"
-    }
-  }
-  const [userDetails, setUserDetails] = useState(dummy);
+  const [userDetails, setUserDetails] = useState<DashboardData | null>(null);
   useEffect(() => {
     getDetails()
   }, [])

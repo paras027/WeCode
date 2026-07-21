@@ -11,37 +11,46 @@
    * HSL color format for Tailwind CSS integration
   */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-    --success: 142.3 71.8% 29.2%;
-    --warning: 38.6 92.1% 50.2%;
-    --error: 0 84.2% 60.2%;
+    --background: 222 47% 7%;            /* #0B1120 */
+  --foreground: 210 40% 98%;
+
+  --card: 222 35% 10%;                 /* #111827 */
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222 35% 10%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 217 91% 60%;              /* Blue */
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 222 25% 15%;            /* Slate */
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 222 25% 15%;
+  --muted-foreground: 215 20% 70%;
+
+  --accent: 217 91% 60%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 222 18% 22%;
+  --input: 222 20% 16%;
+  --ring: 217 91% 60%;
+
+  --sidebar-background: 222 40% 8%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 217 91% 60%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 222 25% 15%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 222 18% 22%;
+  --sidebar-ring: 217 91% 60%;
+
+  --success: 142 71% 45%;
+  --warning: 38 92% 55%;
+  --error: 0 84% 60%;
   }
 
   .dark {

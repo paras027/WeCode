@@ -1375,7 +1375,9 @@ export default function ProblemDetail() {
                             </div>
                           </p>
                           <p className="mt-1.5 text-xs font-mono">
-                            Output: <p className="text-green-400">{JSON.stringify(tc.output)}</p>
+                            Output: <div className="whitespace-pre-wrap font-mono text-sm">
+                              {tc.output}
+                            </div>
                           </p>
                         </div>
                       ))}

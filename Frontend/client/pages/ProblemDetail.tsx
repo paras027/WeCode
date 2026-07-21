@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -9,8 +10,7 @@ import {
 import api from '@/api/axios';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
-
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import axios from 'axios';
 import {
   Select,
   SelectContent,
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Editor from "@monaco-editor/react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import socket from '@/utils/socket';
 import { formatDistanceToNow } from "date-fns";
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -481,9 +482,8 @@ export default function ProblemDetail() {
                 </button>
               ))}
             </div>
-              <PanelGroup direction="horizontal">
-  <Panel defaultSize={45}>
-                {/* Left content */}
+
+            {/* Left content */}
             <div className="flex-1 overflow-auto p-5 bg-card/40">
 
               {/* ── Problem tab ── */}
@@ -549,12 +549,10 @@ export default function ProblemDetail() {
                 )
               )}
             </div>
-  </Panel>
+          </div>
 
-  <PanelResizeHandle className="w-1 bg-border hover:bg-primary transition-colors" />
-
-  <Panel defaultSize={55}>
-    <div className="flex flex-1 flex-col overflow-hidden">
+          {/* ══ RIGHT PANEL ══ */}
+          <div className="flex flex-1 flex-col overflow-hidden">
 
             {/* Editor toolbar */}
             <div className="flex-shrink-0 flex items-center justify-between border-b border-border bg-card px-4 h-11">
@@ -678,13 +676,6 @@ export default function ProblemDetail() {
               </div>
             </div>
           </div>
-  </Panel>
-</PanelGroup>
-
-          </div>
-
-          {/* ══ RIGHT PANEL ══ */}
-          
         </div>
       </div>
     </MainLayout>

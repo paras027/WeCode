@@ -10,7 +10,11 @@ import {
 import api from '@/api/axios';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
+import {
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from "react-resizable-panels";
 import {
   Select,
   SelectContent,
@@ -452,10 +456,15 @@ export default function ProblemDetail() {
         </div>
 
         {/* ── Main body ── */}
-        <div className="flex flex-1 overflow-hidden">
+       <PanelGroup direction="horizontal" className="flex-1 overflow-hidden">
 
           {/* ══ LEFT PANEL ══ */}
-          <div className="hidden lg:flex flex-col w-[42%] border-r border-border overflow-hidden">
+          <Panel
+  defaultSize={42}
+  minSize={25}
+  maxSize={70}
+  className="hidden lg:flex flex-col overflow-hidden"
+>
             {/* Left tab bar */}
             <div className="flex-shrink-0 flex border-b border-border bg-card">
               {['problem', 'submissions'].map((t) => (
@@ -549,10 +558,17 @@ export default function ProblemDetail() {
                 )
               )}
             </div>
-          </div>
+          </Panel>
+<PanelResizeHandle className="group relative w-[6px] bg-border transition-colors hover:bg-primary">
+  <div className="absolute left-1/2 top-1/2 h-16 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/40 group-hover:bg-primary" />
+</PanelResizeHandle>
 
           {/* ══ RIGHT PANEL ══ */}
-          <div className="flex flex-1 flex-col overflow-hidden">
+         <Panel
+  defaultSize={58}
+  minSize={30}
+  className="flex flex-col overflow-hidden"
+>
 
             {/* Editor toolbar */}
             <div className="flex-shrink-0 flex items-center justify-between border-b border-border bg-card px-4 h-11">
@@ -675,9 +691,9 @@ export default function ProblemDetail() {
                 )}
               </div>
             </div>
-          </div>
+          </Panel>
+      </PanelGroup>
         </div>
-      </div>
     </MainLayout>
   );
 }

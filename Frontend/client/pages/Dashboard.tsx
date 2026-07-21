@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import RecentSubmissions from '@/components/dashboard/RecentSubmissions';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   CircleCheckBig,
   FileCode2,
@@ -56,8 +57,14 @@ export default function Dashboard() {
       console.log(e)
     }
   }
-    if (!userDetails) {
-  return <div>Loading...</div>;
+if (!userDetails) {
+  return (
+    <div className="mx-auto max-w-5xl space-y-6 p-6">
+      <Skeleton className="h-32 w-full rounded-xl" />
+      <Skeleton className="h-52 w-full rounded-xl" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+    </div>
+  );
 }
   let c = 0;
   let c1 = 0;

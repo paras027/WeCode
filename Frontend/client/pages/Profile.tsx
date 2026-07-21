@@ -5,6 +5,7 @@ import MainLayout from '@/components/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { mockUser, mockSubmissions } from '@/data/mockData';
+import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 import api from '@/api/axios';
 
@@ -44,9 +45,15 @@ export default function Profile() {
     }
 
   }
-  if (!userDetails) {
-  return <div>Loading...</div>;
-  }
+if (!userDetails) {
+  return (
+    <div className="mx-auto max-w-5xl space-y-6 p-6">
+      <Skeleton className="h-32 w-full rounded-xl" />
+      <Skeleton className="h-52 w-full rounded-xl" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+    </div>
+  );
+}
   let c = 0;
   let c1 = 0;
   for (let subm of userDetails.sub) {

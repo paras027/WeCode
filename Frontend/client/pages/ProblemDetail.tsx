@@ -1375,9 +1375,7 @@ export default function ProblemDetail() {
                             </div>
                           </p>
                           <p className="mt-1.5 text-xs font-mono">
-                            Output: <div className="whitespace-pre-wrap font-mono text-sm">
-                              {tc.output}
-                            </div>
+                            Output: <p className="text-green-400">{JSON.stringify(tc.output)}</p>
                           </p>
                         </div>
                       ))}
@@ -1515,9 +1513,7 @@ export default function ProblemDetail() {
                           </div>
                           <div>
                             <p className="text-muted-foreground mb-1">Expected</p>
-                            <div className="whitespace-pre-wrap font-mono text-sm text-green-500">
-                              {tc.output}
-                            </div>
+                            <p className="text-green-400">{JSON.stringify(tc.output)}</p>
                           </div>
                         </div>
                       </div>

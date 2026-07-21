@@ -1515,7 +1515,9 @@ export default function ProblemDetail() {
                           </div>
                           <div>
                             <p className="text-muted-foreground mb-1">Expected</p>
-                            <p className="text-green-400">{JSON.stringify(tc.output)}</p>
+                            <div className="whitespace-pre-wrap font-mono text-sm">
+                              {tc.output}
+                            </div>
                           </div>
                         </div>
                       </div>

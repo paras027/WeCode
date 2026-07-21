@@ -44,7 +44,9 @@ export default function Profile() {
     }
 
   }
-
+  if (!userDetails) {
+  return <div>Loading...</div>;
+  }
   let c = 0;
   let c1 = 0;
   for (let subm of userDetails.sub) {

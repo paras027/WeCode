@@ -462,7 +462,7 @@ export default function ProblemDetail() {
           <Panel
   defaultSize={42}
   minSize={25}
-  maxSize={70}
+  maxSize={70}  
   className="hidden lg:flex flex-col overflow-hidden"
 >
             {/* Left tab bar */}

@@ -14,7 +14,8 @@ const env = {
     RESEND_API_KEY:process.env.RESEND_API_KEY||'',
     JWT_REFRESH_SECRET:process.env.JWT_REFRESH_SECRET || "",
     REDIS_HOST:process.env.REDIS_HOST || "127.0.0.1",
-    REDIS_PORT:Number(process.env.REDIS_PORT) || 6379
+    REDIS_PORT:Number(process.env.REDIS_PORT) || 6379,
+    GEMINI_KEY:process.env.GEMINI_KEY || ""
 }
 
 export default env;

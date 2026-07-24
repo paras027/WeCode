@@ -179,7 +179,13 @@ function RunOutput({ activeRun, isRunning, onClear }) {
 
 // ─── Submission verdict panel (right side, shown after submit) ─────────────
 
-function SubmitResult({ sub, onClear }) {
+function SubmitResult({
+    sub,
+    onClear,
+    aiExplanation,
+    loadingAi,
+    onExplain
+}) {
   if (!sub) return null;
   const verdict = sub.verdict ?? sub.status ?? "Pending";
   const v = VERDICT[verdict] ?? VERDICT["Pending"];
@@ -203,6 +209,30 @@ function SubmitResult({ sub, onClear }) {
         {sub.error && (
           <pre className="mt-3 text-xs text-red-400 font-mono whitespace-pre-wrap bg-black/20 rounded p-2">{sub.error}</pre>
         )}
+        {sub.verdict === "Compilation Error" && (
+    <div className="mt-3">
+        <Button
+            size="sm"
+            onClick={onExplain}
+            disabled={loadingAi}
+        >
+            {loadingAi
+                ? "Generating..."
+                : "✨ Explain Compilation Error"}
+        </Button>
+    </div>
+)}
+{aiExplanation && (
+  <div className="mt-4 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
+    <h3 className="mb-2 text-sm font-semibold">
+      AI Explanation
+    </h3>
+
+    <div className="whitespace-pre-wrap text-sm text-muted-foreground">
+      {aiExplanation}
+    </div>
+  </div>
+)}
         {totalCount > 0 && (
           <p className="mt-2.5 text-xs text-muted-foreground">{passedCount} / {totalCount} test cases passed</p>
         )}
@@ -336,7 +366,8 @@ export default function ProblemDetail() {
     timeLimit: 200,
     memoryLimit: 256,
   };
-
+const [aiExplanation, setAiExplanation] = useState("");
+const [loadingAi, setLoadingAi] = useState(false);
   const id = useParams();
   const [problem, setProblem] = useState(dummy);
   const [language, setLanguage] = useState('javascript');
@@ -407,7 +438,31 @@ export default function ProblemDetail() {
       setLoadingSubmissions(false);
     }
   }
+  const explainCompilationError = async () => {
+  if (!latestSubmitResult?.error) return;
 
+  try {
+    setLoadingAi(true);
+
+    const res = await api.post(
+      "/ai/explain-compilation-error",
+      {
+        language,
+        code,
+        compileError: latestSubmitResult.error,
+      },
+      {
+        withCredentials: true,
+      }
+    );
+
+    setAiExplanation(res.data.data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoadingAi(false);
+  }
+};
   const handleRun = async () => {
     setIsRunning(true);
     setActiveRun(null);
@@ -676,7 +731,13 @@ export default function ProblemDetail() {
                   activeRun ? (
                     <RunOutput activeRun={activeRun} isRunning={false} onClear={() => setActiveRun(null)} />
                   ) : latestSubmitResult ? (
-                    <SubmitResult sub={latestSubmitResult} onClear={() => setLatestSubmitResult(null)} />
+                    <SubmitResult
+    sub={latestSubmitResult}
+    onClear={() => setLatestSubmitResult(null)}
+    aiExplanation={aiExplanation}
+    loadingAi={loadingAi}
+    onExplain={explainCompilationError}
+/>
                   ) : (isRunning || isSubmitting) ? (
                     <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />

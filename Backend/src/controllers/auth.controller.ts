@@ -1,11 +1,12 @@
 import asyncHandler from "../utils/asyncHandler";
-import ApiError from "../utils/ApiError";
-import User from "../models/users.model";
-import bcrypt from 'bcryptjs';
+import { registerService } from "../services/auth.service";
 import env from "../config/env";
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
+import User from "../models/users.model";
+import ApiError from "../utils/ApiError";
 import { generateToken, generateRefreshToken } from "../utils/jwt";
+import bcrypt from 'bcryptjs';
 import crypto from "crypto"
 import { Resend } from "resend"
 import logger from "../config/logger";
@@ -13,30 +14,8 @@ import logger from "../config/logger";
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
     const { name, username, email, password } = req.body;
 
-    if (!name || !username || !email || !password) {
-        throw new ApiError(400, "All fields are required");
-    }
+    const {user,token} = await registerService(name,username,email,password);
 
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser) {
-   
-        throw new ApiError(400, "User already exists");
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-        name,
-        username,
-        email,
-        password: hashedPassword
-    })
-
-    const token = generateToken(user._id.toString())
-    const refreshToken = generateRefreshToken(user._id.toString())
-
-    user.refreshToken = refreshToken;
-    await user.save();
     res.cookie("token", token, {
         httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000
     })
@@ -203,7 +182,6 @@ interface MyJwtPayload {
 export const refreshToken = asyncHandler(async (req, res) => {
 
     const refreshToken = req.cookies.refreshToken as string;
-    console.log(refreshToken)
     if (!refreshToken) {
         throw new ApiError(401, "Unauthorized");
     }

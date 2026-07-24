@@ -10,6 +10,7 @@ import cors from "cors"
 import cookieParser from 'cookie-parser';
 import helmet from "helmet"
 import { serverAdapter } from './config/bullBoard';
+import AiRoute from "./routes/ai.route"
 
 const app = express();
 app.use(cors({
@@ -32,7 +33,8 @@ app.use("/admin/queues",serverAdapter.getRouter())
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user",getMe)
 app.use("/api/v1/problems", problemRoutes);
-
+app.use("/api/v1/ai", AiRoute);
+console.log("working project")
 app.use(errorMiddleware);
 
 export default app;

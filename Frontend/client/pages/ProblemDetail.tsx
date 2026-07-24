@@ -41,6 +41,15 @@ interface AIExplanation {
   fix: string;
   learningTip: string;
 }
+
+interface AIHint {
+  title: string;
+  hint: string;
+  encouragement: string;
+  hasMoreHints: boolean;
+}
+
+
 const VERDICT = {
   'Passed': { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/30', label: 'Accepted' },
   'Wrong Answer': { icon: XCircle, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/30', label: 'Wrong Answer' },
@@ -185,11 +194,11 @@ function RunOutput({ activeRun, isRunning, onClear }) {
 // ─── Submission verdict panel (right side, shown after submit) ─────────────
 
 function SubmitResult({
-    sub,
-    onClear,
-    aiExplanation,
-    loadingAi,
-    onExplain
+  sub,
+  onClear,
+  aiExplanation,
+  loadingAi,
+  onExplain
 }) {
   if (!sub) return null;
   const verdict = sub.verdict ?? sub.status ?? "Pending";
@@ -215,51 +224,51 @@ function SubmitResult({
           <pre className="mt-3 text-xs text-red-400 font-mono whitespace-pre-wrap bg-black/20 rounded p-2">{sub.error}</pre>
         )}
         {sub.verdict === "Compilation Error" && (
-    <div className="mt-3">
-        <Button
-            size="sm"
-            onClick={onExplain}
-            disabled={loadingAi}
-        >
-            {loadingAi
+          <div className="mt-3">
+            <Button
+              size="sm"
+              onClick={onExplain}
+              disabled={loadingAi}
+            >
+              {loadingAi
                 ? "Generating..."
                 : "✨ Explain Compilation Error"}
-        </Button>
-    </div>
-)}
-{aiExplanation && (
-  <div className="mt-4 space-y-3 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-    <h3 className="text-sm font-semibold">🤖 AI Explanation</h3>
+            </Button>
+          </div>
+        )}
+        {aiExplanation && (
+          <div className="mt-4 space-y-3 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
+            <h3 className="text-sm font-semibold">🤖 AI Explanation</h3>
 
-    <div className="rounded-md bg-background/40 p-3">
-      <h4 className="mb-1 font-medium text-blue-400">📌 Summary</h4>
-      <p className="text-sm text-muted-foreground">
-        {aiExplanation.summary}
-      </p>
-    </div>
+            <div className="rounded-md bg-background/40 p-3">
+              <h4 className="mb-1 font-medium text-blue-400">📌 Summary</h4>
+              <p className="text-sm text-muted-foreground">
+                {aiExplanation.summary}
+              </p>
+            </div>
 
-    <div className="rounded-md bg-background/40 p-3">
-      <h4 className="mb-1 font-medium text-red-400">❌ Cause</h4>
-      <p className="text-sm text-muted-foreground">
-        {aiExplanation.cause}
-      </p>
-    </div>
+            <div className="rounded-md bg-background/40 p-3">
+              <h4 className="mb-1 font-medium text-red-400">❌ Cause</h4>
+              <p className="text-sm text-muted-foreground">
+                {aiExplanation.cause}
+              </p>
+            </div>
 
-    <div className="rounded-md bg-background/40 p-3">
-      <h4 className="mb-1 font-medium text-green-400">✅ Fix</h4>
-      <p className="text-sm text-muted-foreground">
-        {aiExplanation.fix}
-      </p>
-    </div>
+            <div className="rounded-md bg-background/40 p-3">
+              <h4 className="mb-1 font-medium text-green-400">✅ Fix</h4>
+              <p className="text-sm text-muted-foreground">
+                {aiExplanation.fix}
+              </p>
+            </div>
 
-    <div className="rounded-md bg-background/40 p-3">
-      <h4 className="mb-1 font-medium text-yellow-400">💡 Learning Tip</h4>
-      <p className="text-sm text-muted-foreground">
-        {aiExplanation.learningTip}
-      </p>
-    </div>
-  </div>
-)}
+            <div className="rounded-md bg-background/40 p-3">
+              <h4 className="mb-1 font-medium text-yellow-400">💡 Learning Tip</h4>
+              <p className="text-sm text-muted-foreground">
+                {aiExplanation.learningTip}
+              </p>
+            </div>
+          </div>
+        )}
         {totalCount > 0 && (
           <p className="mt-2.5 text-xs text-muted-foreground">{passedCount} / {totalCount} test cases passed</p>
         )}
@@ -393,9 +402,14 @@ export default function ProblemDetail() {
     timeLimit: 200,
     memoryLimit: 256,
   };
-const [aiExplanation, setAiExplanation] =
-  useState<AIExplanation | null>(null);
-const [loadingAi, setLoadingAi] = useState(false);
+  const [aiExplanation, setAiExplanation] =
+    useState<AIExplanation | null>(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [aiHint, setAiHint] = useState<AIHint | null>(null);
+
+  const [loadingHint, setLoadingHint] = useState(false);
+
+  const [hintLevel, setHintLevel] = useState(1);
   const id = useParams();
   const [problem, setProblem] = useState(dummy);
   const [language, setLanguage] = useState('javascript');
@@ -442,7 +456,8 @@ const [loadingAi, setLoadingAi] = useState(false);
     try {
       const res = await api.get(`/problems/problem/${id.id}`);
       setProblem(res.data.problems);
-
+      setAiHint(null);
+      setHintLevel(1);
       setCode(res.data.problems.starterCode?.[language] || '');
     } catch (e) {
 
@@ -467,30 +482,61 @@ const [loadingAi, setLoadingAi] = useState(false);
     }
   }
   const explainCompilationError = async () => {
-  if (!latestSubmitResult?.error) return;
+    if (!latestSubmitResult?.error) return;
 
-  try {
-    setLoadingAi(true);
+    try {
+      setLoadingAi(true);
 
-    const res = await api.post(
-      "/ai/explain-compilation-error",
-      {
-        language,
-        code,
-        compileError: latestSubmitResult.error,
-      },
-      {
-        withCredentials: true,
-      }
-    );
+      const res = await api.post(
+        "/ai/explain-compilation-error",
+        {
+          language,
+          code,
+          compileError: latestSubmitResult.error,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
-    setAiExplanation(res.data.data);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoadingAi(false);
-  }
-};
+      setAiExplanation(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
+  const getHint = async (level: number = 1) => {
+
+    try {
+
+      setLoadingHint(true);
+
+      const res = await api.post(
+        "/ai/hint",
+        {
+          title: problem.title,
+          description: problem.description,
+          examples: JSON.stringify(problem.examples),
+          constraints: problem.constraints,
+          hintLevel: level
+        },
+        {
+          withCredentials: true
+        }
+      );
+
+      setAiHint(res.data.data);
+
+      setHintLevel(level);
+
+    } finally {
+
+      setLoadingHint(false);
+
+    }
+  };
   const handleRun = async () => {
     setIsRunning(true);
     setActiveRun(null);
@@ -539,15 +585,15 @@ const [loadingAi, setLoadingAi] = useState(false);
         </div>
 
         {/* ── Main body ── */}
-       <PanelGroup direction="horizontal" className="flex-1 overflow-hidden">
+        <PanelGroup direction="horizontal" className="flex-1 overflow-hidden">
 
           {/* ══ LEFT PANEL ══ */}
           <Panel
-  defaultSize={42}
-  minSize={25}
-  maxSize={70}  
-  className="hidden lg:flex flex-col overflow-hidden"
->
+            defaultSize={42}
+            minSize={25}
+            maxSize={70}
+            className="hidden lg:flex flex-col overflow-hidden"
+          >
             {/* Left tab bar */}
             <div className="flex-shrink-0 flex border-b border-border bg-card">
               {['problem', 'submissions'].map((t) => (
@@ -583,6 +629,59 @@ const [loadingAi, setLoadingAi] = useState(false);
                 <div className="space-y-6">
                   <div>
                     <p className="text-sm leading-relaxed text-muted-foreground">{problem.description}</p>
+                    <div className="mt-5">
+
+                      <Button
+                        variant="secondary"
+                        onClick={() => getHint(1)}
+                        disabled={loadingHint}
+                        className="gap-2"
+                      >
+                        <Lightbulb className="h-4 w-4" />
+
+                        {loadingHint
+                          ? "Generating..."
+                          : "AI Hint"}
+                      </Button>
+                      {aiHint && (
+
+                        <div className="mt-4 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4 space-y-4">
+
+                          <h3 className="font-semibold">
+                            💡 {aiHint.title}
+                          </h3>
+
+                          <p className="text-sm text-muted-foreground">
+                            {aiHint.hint}
+                          </p>
+
+                          <div className="rounded-md bg-background/40 p-3">
+
+                            <p className="text-sm">
+                              {aiHint.encouragement}
+                            </p>
+
+                          </div>
+
+                          {aiHint.hasMoreHints && (
+
+                            <Button
+                              size="sm"
+                              onClick={() => getHint(hintLevel + 1)}
+                              disabled={loadingHint}
+                            >
+                              {loadingHint
+                                ? "Generating..."
+                                : "Need Another Hint"}
+                            </Button>
+
+                          )}
+
+                        </div>
+
+                      )}
+
+                    </div>
                   </div>
 
                   <div>
@@ -642,16 +741,16 @@ const [loadingAi, setLoadingAi] = useState(false);
               )}
             </div>
           </Panel>
-<PanelResizeHandle className="group relative w-[6px] bg-border transition-colors hover:bg-primary">
-  <div className="absolute left-1/2 top-1/2 h-16 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/40 group-hover:bg-primary" />
-</PanelResizeHandle>
+          <PanelResizeHandle className="group relative w-[6px] bg-border transition-colors hover:bg-primary">
+            <div className="absolute left-1/2 top-1/2 h-16 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/40 group-hover:bg-primary" />
+          </PanelResizeHandle>
 
           {/* ══ RIGHT PANEL ══ */}
-         <Panel
-  defaultSize={58}
-  minSize={30}
-  className="flex flex-col overflow-hidden"
->
+          <Panel
+            defaultSize={58}
+            minSize={30}
+            className="flex flex-col overflow-hidden"
+          >
 
             {/* Editor toolbar */}
             <div className="flex-shrink-0 flex items-center justify-between border-b border-border bg-card px-4 h-11">
@@ -760,12 +859,12 @@ const [loadingAi, setLoadingAi] = useState(false);
                     <RunOutput activeRun={activeRun} isRunning={false} onClear={() => setActiveRun(null)} />
                   ) : latestSubmitResult ? (
                     <SubmitResult
-    sub={latestSubmitResult}
-    onClear={() => setLatestSubmitResult(null)}
-    aiExplanation={aiExplanation}
-    loadingAi={loadingAi}
-    onExplain={explainCompilationError}
-/>
+                      sub={latestSubmitResult}
+                      onClear={() => setLatestSubmitResult(null)}
+                      aiExplanation={aiExplanation}
+                      loadingAi={loadingAi}
+                      onExplain={explainCompilationError}
+                    />
                   ) : (isRunning || isSubmitting) ? (
                     <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -781,8 +880,8 @@ const [loadingAi, setLoadingAi] = useState(false);
               </div>
             </div>
           </Panel>
-      </PanelGroup>
-        </div>
+        </PanelGroup>
+      </div>
     </MainLayout>
   );
 }

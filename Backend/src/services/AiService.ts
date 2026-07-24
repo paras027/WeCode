@@ -20,10 +20,21 @@ ${buildHintPrompt(data)}
 
     const response = await generate(prompt);
 
+    try {
+
     const parsed = JSON.parse(response);
 
     return {
         ...parsed,
         hasMoreHints: data.hintLevel < 3
     };
+
+} catch (err) {
+
+    console.log("JSON Parse Error");
+    console.log(err);
+
+    throw err;
+
+}
 }

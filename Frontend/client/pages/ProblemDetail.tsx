@@ -510,7 +510,7 @@ export default function ProblemDetail() {
   const getHint = async (level: number = 1) => {
 
     try {
-
+      console.log("getting ai hint")
       setLoadingHint(true);
 
       const res = await api.post(
@@ -526,8 +526,8 @@ export default function ProblemDetail() {
           withCredentials: true
         }
       );
-
-      setAiHint(res.data.data);
+      console.log("got hint: ",res.data)
+      setAiHint(res.data.hint);
 
       setHintLevel(level);
 

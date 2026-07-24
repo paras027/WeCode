@@ -35,7 +35,12 @@ const testCases = [
 const examples = [
   { _id: 1, input: 'nums = [2,7,11,15], target = 9', output: '[0,1]' },
 ];
-
+interface AIExplanation {
+  summary: string;
+  cause: string;
+  fix: string;
+  learningTip: string;
+}
 const VERDICT = {
   'Passed': { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/30', label: 'Accepted' },
   'Wrong Answer': { icon: XCircle, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/30', label: 'Wrong Answer' },
@@ -223,13 +228,35 @@ function SubmitResult({
     </div>
 )}
 {aiExplanation && (
-  <div className="mt-4 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-    <h3 className="mb-2 text-sm font-semibold">
-      AI Explanation
-    </h3>
+  <div className="mt-4 space-y-3 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
+    <h3 className="text-sm font-semibold">🤖 AI Explanation</h3>
 
-    <div className="whitespace-pre-wrap text-sm text-muted-foreground">
-      {aiExplanation}
+    <div className="rounded-md bg-background/40 p-3">
+      <h4 className="mb-1 font-medium text-blue-400">📌 Summary</h4>
+      <p className="text-sm text-muted-foreground">
+        {aiExplanation.summary}
+      </p>
+    </div>
+
+    <div className="rounded-md bg-background/40 p-3">
+      <h4 className="mb-1 font-medium text-red-400">❌ Cause</h4>
+      <p className="text-sm text-muted-foreground">
+        {aiExplanation.cause}
+      </p>
+    </div>
+
+    <div className="rounded-md bg-background/40 p-3">
+      <h4 className="mb-1 font-medium text-green-400">✅ Fix</h4>
+      <p className="text-sm text-muted-foreground">
+        {aiExplanation.fix}
+      </p>
+    </div>
+
+    <div className="rounded-md bg-background/40 p-3">
+      <h4 className="mb-1 font-medium text-yellow-400">💡 Learning Tip</h4>
+      <p className="text-sm text-muted-foreground">
+        {aiExplanation.learningTip}
+      </p>
     </div>
   </div>
 )}
@@ -366,7 +393,8 @@ export default function ProblemDetail() {
     timeLimit: 200,
     memoryLimit: 256,
   };
-const [aiExplanation, setAiExplanation] = useState("");
+const [aiExplanation, setAiExplanation] =
+  useState<AIExplanation | null>(null);
 const [loadingAi, setLoadingAi] = useState(false);
   const id = useParams();
   const [problem, setProblem] = useState(dummy);

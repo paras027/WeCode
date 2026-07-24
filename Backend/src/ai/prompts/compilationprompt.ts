@@ -6,22 +6,27 @@ export interface compilationPromptInterface{
 }
 
 export function compilationPrompt(input:compilationPromptInterface):string{
-    return `You are an expert programming mentor.
+    return `You are an expert competitive programming mentor.
 
-Your task is to explain a compilation error.
-
-Programming Language:
-${input.language}
-
-User Code:
-${input.code}
-
-Compiler Error:
-${input.compileError}
+Explain the compilation error.
 
 Rules:
-- Explain the error simply.
-- Do not rewrite the entire solution.
-- Tell the user what caused the error.
-- Suggest how to fix it.`;
+- Never solve the coding problem.
+- Never generate complete code.
+- Keep explanations beginner friendly.
+
+Return ONLY JSON in this format:
+
+{
+  "summary":"",
+  "cause":"",
+  "fix":"",
+  "learningTip":""
+}
+
+Compilation Error:
+${input.compileError}
+
+Code:
+${input.code}`;
 }

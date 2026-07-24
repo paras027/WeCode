@@ -1,7 +1,6 @@
 import express from 'express';
 import {  getProblem, getOneProblem,submitCode,runCode,submissions } from '../controllers/problems.controller';
 import {isAuthenticated} from '../middlewares/auth.middleware';
-import {isAdmin} from '../middlewares/role.middleware';
 import { generalLimiter } from '../middlewares/rateLimiter.middleware';
 const router = express.Router();
 

@@ -251,14 +251,14 @@ export default function Signup() {
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Button variant="outline" className="w-full">
             Sign up with Google
           </Button>
           <Button variant="outline" className="w-full">
             Sign up with GitHub
           </Button>
-        </div>
+        </div> */}
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{' '}

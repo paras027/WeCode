@@ -22,7 +22,12 @@ ${buildHintPrompt(data)}
 
     try {
 
-    const parsed = JSON.parse(response);
+     const cleanedResponse = response
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+    const parsed = JSON.parse(cleanedResponse);
 
     return {
         ...parsed,

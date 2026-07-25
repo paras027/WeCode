@@ -5,6 +5,6 @@ import { generalLimiter } from '../middlewares/rateLimiter.middleware';
 const router  = Router();
 
 router.post("/explain-compilation-error",isAuthenticated,generalLimiter,aiController);
-router.post("/hint",aiHintController);
+router.post("/hint",isAuthenticated,generalLimiter,aiHintController);
 
 export default router

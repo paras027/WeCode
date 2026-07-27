@@ -10,7 +10,7 @@ export async function getProblem({
 }: GetProblemArgs) {
   const problem = await Problem.findById(problemId)
     .select(
-      "title description constraints inputFormat outputFormat examples difficulty"
+      "title description constraints examples difficulty"
     )
     .lean();
 

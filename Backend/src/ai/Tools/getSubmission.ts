@@ -14,7 +14,7 @@ export async function getSubmission({
       select: "_id",
     })
     .select(
-      "sourceCode language verdict runtime memory problem"
+      "code language verdict runtime memory problemId"
     )
     .lean();
 

@@ -6,7 +6,6 @@ const api = axios.create({
     withCredentials: true,
 });
 
-console.log("backend url: ",import.meta.env.VITE_BACKEND_URL)
 api.interceptors.response.use(
     (response) => response,
 

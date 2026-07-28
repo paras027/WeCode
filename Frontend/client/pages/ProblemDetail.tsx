@@ -26,6 +26,7 @@ import Editor from "@monaco-editor/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import socket from '@/utils/socket';
 import { formatDistanceToNow } from "date-fns";
+import AIReviewDialog from '@/components/AIReviewDialog';
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const testCases = [
@@ -198,7 +199,12 @@ function SubmitResult({
   onClear,
   aiExplanation,
   loadingAi,
-  onExplain
+  onExplain,
+  aiReview,
+  loadingReview,
+  onReview,
+  reviewDialogOpen,
+  setReviewDialogOpen,
 }) {
   if (!sub) return null;
   const verdict = sub.verdict ?? sub.status ?? "Pending";
@@ -277,6 +283,19 @@ function SubmitResult({
         {sub.verdict !== 'Passed' && sub.result?.map((res, i) => (
           <CaseCard key={i} res={res} index={i} passed={res.output === res.expected} />
         ))}
+        <Button
+          size="sm"
+          onClick={aiReview ? () => setReviewDialogOpen(true) : onReview}
+          disabled={loadingReview}
+        >
+          {loadingReview
+            ? "Generating Review..."
+            : aiReview
+              ? "✨ View AI Review" 
+              : "🤖 Generate AI Review"}
+        </Button>
+
+        
       </div>}
     </div>
   );
@@ -386,6 +405,16 @@ function SubmissionHistoryDetail({ sub, onBack }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
+interface AIReview {
+  correctness: string;
+  rating: number;
+  timeComplexity: string;
+  spaceComplexity: string;
+  strengths: string[];
+  issues: string[];
+  suggestions: string[];
+  overallFeedback: string;
+}
 
 export default function ProblemDetail() {
   const dummy = {
@@ -402,6 +431,9 @@ export default function ProblemDetail() {
     timeLimit: 200,
     memoryLimit: 256,
   };
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [aiReview, setAiReview] = useState<AIReview | null>(null);
+  const [loadingReview, setLoadingReview] = useState(false);
   const [aiExplanation, setAiExplanation] =
     useState<AIExplanation | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);
@@ -463,7 +495,27 @@ export default function ProblemDetail() {
 
     }
   }
+  const generateReview = async () => {
+    if (!latestSubmitResult?._id) return;
 
+    try {
+      setLoadingReview(true);
+
+      const res = await api.post(
+        `/ai/review/${latestSubmitResult._id}`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      setAiReview(res.data.data);
+      setReviewDialogOpen(true);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingReview(false);
+    }
+  };
   async function fetchSubmissions() {
     setLoadingSubmissions(true);
     try {
@@ -526,7 +578,7 @@ export default function ProblemDetail() {
           withCredentials: true
         }
       );
-      console.log("got hint: ",res.data)
+      console.log("got hint: ", res.data)
       setAiHint(res.data.hint);
 
       setHintLevel(level);
@@ -538,6 +590,8 @@ export default function ProblemDetail() {
     }
   };
   const handleRun = async () => {
+    setReviewDialogOpen(false);
+    setAiReview(null);
     setIsRunning(true);
     setActiveRun(null);
     setLatestSubmitResult(null);
@@ -550,6 +604,8 @@ export default function ProblemDetail() {
   };
 
   const handleSubmit = async () => {
+    setReviewDialogOpen(false);
+    setAiReview(null);
     setIsSubmitting(true);
     setLatestSubmitResult(null);
     setActiveRun(null);
@@ -864,7 +920,13 @@ export default function ProblemDetail() {
                       aiExplanation={aiExplanation}
                       loadingAi={loadingAi}
                       onExplain={explainCompilationError}
+                      onReview={generateReview}
+                      aiReview={aiReview}
+                      loadingReview={loadingReview}
+                      reviewDialogOpen={reviewDialogOpen}
+  setReviewDialogOpen={setReviewDialogOpen}
                     />
+                    
                   ) : (isRunning || isSubmitting) ? (
                     <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -877,6 +939,11 @@ export default function ProblemDetail() {
                     </div>
                   )
                 )}
+                <AIReviewDialog
+          open={reviewDialogOpen}
+          setOpen={setReviewDialogOpen}
+          review={aiReview}
+        />
               </div>
             </div>
           </Panel>

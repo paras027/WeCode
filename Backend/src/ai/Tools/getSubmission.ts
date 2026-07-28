@@ -10,14 +10,13 @@ export async function getSubmission({
 }: GetSubmissionArgs) {
   const submission = await Submission.findById(submissionId)
     .populate({
-      path: "problem",
+      path: "problemId",
       select: "_id",
     })
     .select(
       "code language verdict runtime memory problemId"
     )
     .lean();
-
   if (!submission) {
     throw new ApiError(404, "Submission not found");
   }

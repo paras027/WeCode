@@ -1,6 +1,8 @@
 import { compilationPrompt, compilationPromptInterface } from "../ai/prompts/compilationprompt"
 import { generate } from "../ai/Providers/GeminiProviders"
 import { HintRequest, buildHintPrompt, SYSTEM_PROMPT } from "../ai/prompts/hintPrompt";
+import { reviewSubmission } from "../ai/agents/review.agent";
+
 
 export async function compilationExplanation(input: compilationPromptInterface): Promise<string> {
     const prompt = compilationPrompt(input);
@@ -43,3 +45,13 @@ ${buildHintPrompt(data)}
 
 }
 }
+
+
+export async function generateReview(submissionId:string){
+    console.log("came here to service")
+    const ans =  await reviewSubmission(submissionId);
+    console.log("service result ",ans)
+    return ans;
+}
+
+

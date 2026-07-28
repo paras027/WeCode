@@ -3,11 +3,13 @@ import { REVIEW_PROMPT } from "../prompts/reviewPrompts";
 import { toolDeclarations } from "../Tools/toolDeclaration";
 import { toolRegistry } from "../Tools/toolRegistry";
 import { Content } from "@google/genai";
+import { reviewSchema } from "../schema/review.schema";
 
 export async function reviewSubmission(
     submissionId: string
 ) {
-    const contents:Content[] = [
+    console.log("came here to agent")
+    const contents: Content[] = [
         {
             role: "user",
             parts: [
@@ -21,31 +23,34 @@ Submission ID: ${submissionId}
             ],
         },
     ];
-
+    console.log("starting agent loop")
     while (true) {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+        try{
+            const response = await ai.models.generateContent({
+            model: "gemini-flash-latest",
             contents,
             config: {
                 tools: toolDeclarations,
+                responseMimeType: "application/json",
+                responseSchema: reviewSchema,
             },
         });
-
+        console.log("got response ", response)
         const functionCall = response.functionCalls?.[0];
-
+        console.log("got function ",functionCall)
         if (!functionCall) {
-            return response.text;
+            return JSON.parse(response.text!);
         }
-
+        console.log("got function name")
         const functionName = functionCall.name;
 
         const args = functionCall.args;
 
         const tool =
             toolRegistry[
-                functionName as keyof typeof toolRegistry
+            functionName as keyof typeof toolRegistry
             ];
-
+            console.log("got tool ",tool)
         if (!tool) {
             throw new Error(
                 `Unknown tool: ${functionName}`
@@ -53,18 +58,17 @@ Submission ID: ${submissionId}
         }
 
         const toolResult = await tool(args as never);
+        console.log("got tool result ",toolResult)
+         const modelContent = response.candidates?.[0]?.content;
+
+        if (!modelContent) {
+            throw new Error("Gemini did not return model content.");
+        }
+
+        contents.push(modelContent);
 
         contents.push({
-            role: "model",
-            parts: [
-                {
-                    functionCall,
-                },
-            ],
-        });
-
-        contents.push({
-            role: "tool",
+            role: "user",
             parts: [
                 {
                     functionResponse: {
@@ -74,5 +78,13 @@ Submission ID: ${submissionId}
                 },
             ],
         });
+        }
+        catch(e)
+        {
+            console.log("error: ",e)
+            throw e;
+        }
+        
+
     }
 }

@@ -17,7 +17,7 @@ export async function generateHints(data: HintRequest) {
     const prompt = `
 ${SYSTEM_PROMPT}
 
-${buildHintPrompt(data)}
+${buildHintPrompt(data)} 
 `;
 
     const response = await generate(prompt);

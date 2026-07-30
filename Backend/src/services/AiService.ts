@@ -11,7 +11,7 @@ export async function compilationExplanation(input: compilationPromptInterface):
 
     return parsed;
 
-}
+} 
 
 export async function generateHints(data: HintRequest) {
     const prompt = `

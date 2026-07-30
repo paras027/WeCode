@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import {SignOptions} from "jsonwebtoken"
 dotenv.config({
-    path: `.env.${process.env.NODE_ENV}`
+    path: `.env.${process.env.NODE_ENV || 'production'}`
         
 });
 console.log("Redis Host: ",process.env.REDIS_HOST)
@@ -15,7 +15,9 @@ const env = {
     JWT_REFRESH_SECRET:process.env.JWT_REFRESH_SECRET || "",
     REDIS_HOST:process.env.REDIS_HOST || "127.0.0.1",
     REDIS_PORT:Number(process.env.REDIS_PORT) || 6379,
-    GEMINI_KEY:process.env.GEMINI_KEY || ""
+    GEMINI_KEY:process.env.GEMINI_KEY || "",
+    PINECONEAPI: process.env.PINECONE_API_KEY || "",
+    PINECONEINDEX:process.env.PINECONE_INDEX_NAME || ""
 }
 
 export default env;

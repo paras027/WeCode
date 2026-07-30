@@ -7,7 +7,8 @@
     "dev": "cross-env NODE_ENV=production ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "ts-node src/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "@bull-board/api": "^8.1.2",
     "@bull-board/express": "^8.1.2",
     "@google/genai": "^2.13.0",
+    "@pinecone-database/pinecone": "^8.1.0",
     "axios": "^1.17.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",

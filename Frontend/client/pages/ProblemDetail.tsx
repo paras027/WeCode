@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import socket from '@/utils/socket';
 import { formatDistanceToNow } from "date-fns";
 import AIReviewDialog from '@/components/AIReviewDialog';
+import AIChatDialog from '@/components/AiChat/AiChatDialog';
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const testCases = [
@@ -418,7 +419,7 @@ interface AIReview {
 
 export default function ProblemDetail() {
   const dummy = {
-    id: '1',
+    _id: '1',
     title: 'Two Sum',
     difficulty: 'Easy',
     status: 'Solved',
@@ -454,6 +455,7 @@ export default function ProblemDetail() {
   const [activeRun, setActiveRun] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   // left panel: 'problem' | 'submissions'
   const [leftTab, setLeftTab] = useState('problem');
@@ -949,6 +951,20 @@ export default function ProblemDetail() {
           </Panel>
         </PanelGroup>
       </div>
+      <>
+    <button
+        onClick={() => setChatOpen(true)}
+        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-white shadow-lg hover:scale-105 transition"
+    >
+        🤖
+    </button>
+
+    <AIChatDialog
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        problemId={problem._id}
+    />
+</>
     </MainLayout>
   );
 }

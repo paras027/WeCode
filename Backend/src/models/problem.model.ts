@@ -22,7 +22,7 @@ export interface IStarterCode {
 export interface IProblem extends Document {
     title: string;
     description: string;
-    difficulty: "Easy" | "Medium" | "Hard";
+    difficulty: "easy" | "medium" | "hard";
 
     tags: string[];
 

@@ -2,19 +2,35 @@ import mongoose from "mongoose";
 import fs from "fs";
 import Problem from "./models/problem.model";
 import env from "./config/env";
+import { indexProblem } from "./ai/rag/indexer"
 
 async function seed() {
-    await mongoose.connect(env.MONGO_URI);
+    try {
+        await mongoose.connect(env.MONGO_URI);
 
-    const data = JSON.parse(
-    fs.readFileSync("./src/data.json", "utf8")
-);
+        await Problem.deleteMany({});
 
-    await Problem.insertMany(data);
+        const data = JSON.parse(
+            fs.readFileSync("./src/data.json", "utf8")
+        );
 
-    console.log("Seeded successfully!");
+        await Problem.insertMany(data);
+        const problems = await Problem.find();
 
-    process.exit();
+        if (!problems) {
+            throw new Error("Problem not found");
+        }
+
+        for (const problem of problems) {
+            await indexProblem(problem);
+        }
+
+        console.log("Seeded Successfully");
+    } catch (err) {
+        console.error(err);
+    } finally {
+        await mongoose.disconnect();
+    }
 }
 
 seed();

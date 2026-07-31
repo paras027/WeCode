@@ -17,6 +17,8 @@
     "@bull-board/api": "^8.1.2",
     "@bull-board/express": "^8.1.2",
     "@google/genai": "^2.13.0",
+    "@langchain/core": "^1.2.4",
+    "@langchain/google-genai": "^2.2.0",
     "@pinecone-database/pinecone": "^8.1.0",
     "axios": "^1.17.0",
     "bcrypt": "^6.0.0",

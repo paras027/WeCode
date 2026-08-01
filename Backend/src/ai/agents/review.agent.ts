@@ -1,4 +1,4 @@
-import { ai } from "../config/ai";
+import { gemini } from "../config/ai";
 import { REVIEW_PROMPT } from "../prompts/reviewPrompts";
 import { toolDeclarations } from "../Tools/toolDeclaration";
 import { toolRegistry } from "../Tools/toolRegistry";
@@ -8,7 +8,7 @@ import { reviewSchema } from "../schema/review.schema";
 export async function reviewSubmission(
     submissionId: string
 ) {
-    console.log("came here to agent") 
+    console.log("came here to agent")
     const contents: Content[] = [
         {
             role: "user",
@@ -26,7 +26,7 @@ Submission ID: ${submissionId}
     console.log("starting agent loop")
     while (true) {
         try{
-            const response = await ai.models.generateContent({
+            const response = await gemini.models.generateContent({
             model: "gemini-flash-latest",
             contents,
             config: {

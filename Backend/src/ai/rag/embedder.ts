@@ -1,5 +1,7 @@
-import { ai } from "../config/ai";
+
 import { Chunk } from "./types";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import {models} from "../config/ai"
 
 export interface EmbeddedChunk extends Chunk {
     embedding: number[];
@@ -9,23 +11,14 @@ export async function embedChunks(
     chunks: Chunk[]
 ): Promise<EmbeddedChunk[]> {
 
-    const response = await ai.models.embedContent({
-        model: "gemini-embedding-001",
-        contents: chunks.map(chunk => ({
-            parts: [
-                {
-                    text: chunk.text
-                }
-            ]
-        }))
-    });
 
-    if (!response.embeddings) {
-        throw new Error("Failed to generate embeddings.");
-    }
+const response = await models.embedDocuments(
+    chunks.map(chunk => chunk.text)
+);
+
 
     return chunks.map((chunk, index) => {
-        const embedding = response.embeddings?.[index]?.values;
+        const embedding = response?.[index];
 
         if (!embedding) {
             throw new Error(

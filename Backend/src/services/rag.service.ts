@@ -18,10 +18,7 @@ export async function askRag(
     );
     console.log("got the prompt: ",prompt)
    try {
-    const response = await ai.models.generateContent({
-        model: "gemini-flash-latest",
-        contents: prompt,
-    });
+    const response = await ai.invoke(prompt)
 
     console.log("AI Response:", response);
 

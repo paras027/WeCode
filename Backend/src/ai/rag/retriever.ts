@@ -1,4 +1,4 @@
-import { ai } from "../config/ai";
+import { models } from "../config/ai";
 import { index } from "./pinecone";
 
 export interface RetrievedChunk {
@@ -15,19 +15,15 @@ export async function retrieveRelevantChunks(
     question: string, problemId: string
 ): Promise<RetrievedChunk[]> {
     console.log("came into retriveal of chunks")
-    const response = await ai.models.embedContent({
-        model: "gemini-embedding-001",
-        contents: question
-    });
+    const response = await models.embedQuery(question);
     console.log("got response of embedded content: ", response)
-    const embedding = response.embeddings?.[0].values;
-    console.log("got response of embedded content2: ", embedding)
-    if (!embedding) {
+
+    if (!response) {
         throw new Error("Failed to generate query embedding.");
     }
 
     const results = await index.query({
-        vector: embedding,
+        vector: response,
         topK: 10,
         includeMetadata: true,
         filter: {

@@ -12,14 +12,13 @@ export async function askRag(
         return "I couldn't find that information in the problem database.";
     }
 
-    const prompt = buildRagPrompt(
+    const prompt = await buildRagPrompt(
         question,
         chunks
     );
     console.log("got the prompt: ",prompt)
    try {
     const response = await ai.invoke(prompt)
-
     console.log("AI Response:", response);
 
     return response.text ?? "No response generated.";

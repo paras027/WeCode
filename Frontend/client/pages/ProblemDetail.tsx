@@ -116,8 +116,11 @@ function CaseCard({ res, index, passed }) {
       </div>
       <div className="grid grid-cols-3 gap-3 font-mono">
         <div>
-          <p className="text-muted-foreground mb-1">Input</p>
-          <p className="text-foreground break-all">{JSON.stringify(res.input)}</p>
+          <p className="text-muted-foreground mb-1">Input: </p>
+          <div className="whitespace-pre-wrap font-mono text-sm">
+            {res.input}
+          </div>
+
         </div>
         <div>
           <p className="text-muted-foreground mb-1">Expected</p>
@@ -292,11 +295,11 @@ function SubmitResult({
           {loadingReview
             ? "Generating Review..."
             : aiReview
-              ? "✨ View AI Review" 
+              ? "✨ View AI Review"
               : "🤖 Generate AI Review"}
         </Button>
 
-        
+
       </div>}
     </div>
   );
@@ -926,9 +929,9 @@ export default function ProblemDetail() {
                       aiReview={aiReview}
                       loadingReview={loadingReview}
                       reviewDialogOpen={reviewDialogOpen}
-  setReviewDialogOpen={setReviewDialogOpen}
+                      setReviewDialogOpen={setReviewDialogOpen}
                     />
-                    
+
                   ) : (isRunning || isSubmitting) ? (
                     <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -942,29 +945,29 @@ export default function ProblemDetail() {
                   )
                 )}
                 <AIReviewDialog
-          open={reviewDialogOpen}
-          setOpen={setReviewDialogOpen}
-          review={aiReview}
-        />
+                  open={reviewDialogOpen}
+                  setOpen={setReviewDialogOpen}
+                  review={aiReview}
+                />
               </div>
             </div>
           </Panel>
         </PanelGroup>
       </div>
       <>
-    <button
-        onClick={() => setChatOpen(true)}
-        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-white shadow-lg hover:scale-105 transition"
-    >
-        🤖
-    </button>
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-white shadow-lg hover:scale-105 transition"
+        >
+          🤖
+        </button>
 
-    <AIChatDialog
-        open={chatOpen}
-        onClose={() => setChatOpen(false)}
-        problemId={problem._id}
-    />
-</>
+        <AIChatDialog
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          problemId={problem._id}
+        />
+      </>
     </MainLayout>
   );
 }

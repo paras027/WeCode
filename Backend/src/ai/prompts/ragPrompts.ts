@@ -1,7 +1,7 @@
 import { RetrievedChunk } from "../rag/retriever";
 import { PromptTemplate } from "@langchain/core/prompts";
 
-const ragPromptTemplate = PromptTemplate.fromTemplate(`
+export const ragPromptTemplate = PromptTemplate.fromTemplate(`
 You are an expert programming tutor helping users solve coding interview problems.
 
 Your goal is NOT to copy or summarize the context.
@@ -17,8 +17,6 @@ Instead:
 Rules:
 - Do not invent or assume information.
 - Do not use outside knowledge.
-- If the answer is not available in the context, reply:
-"I couldn't find that information in the problem database."
 
 ====================
 
@@ -38,10 +36,9 @@ ANSWER
 `);
 
 
-export async function buildRagPrompt(
-    question: string,
+export function buildRagPrompt(
     chunks: RetrievedChunk[]
-): Promise<string> {
+): string {
 
     const context = chunks
         .map(
@@ -58,8 +55,5 @@ ${chunk.text}
         )
         .join("\n--------------------\n");
 
-    return await ragPromptTemplate.format({
-        question,
-        context,
-    });
+    return context
 }

@@ -1,697 +1,353 @@
 # 🚀 WeCode
 
-> **A Production-Inspired Distributed Online Coding Platform**
-   
-**Secure Docker-based Code Execution • BullMQ Job Queue • Redis Pub/Sub
-• Socket.IO • AWS Deployment**
+> **An AI-Powered Distributed Online Coding Platform Inspired by LeetCode**
 
-------------------------------------------------------------------------
+Build • Submit • Execute • Learn
+
+Secure Docker Execution • AI Chat • AI Hint Generation • AI Code Review • RAG • BullMQ • Redis Pub/Sub • Socket.IO • AWS
+
+---
+
+## 🚀 Highlights
+
+- ✅ Distributed Judge System
+- ✅ Docker Sandboxed Code Execution
+- ✅ BullMQ Background Processing
+- ✅ Redis Pub/Sub Communication
+- ✅ Real-Time Verdict Updates
+- ✅ AI Chat
+- ✅ AI Hint Generation
+- ✅ AI Code Review
+- ✅ Retrieval-Augmented Generation (RAG)
+- ✅ LangChain + Google Gemini + Pinecone
+- ✅ AWS Deployment
 
 # 📖 Table of Contents
 
-1.  Introduction
-2.  Why I Built WeCode
-3.  Demo
-4.  Features
-5.  High Level Architecture
-6.  Submission Lifecycle
-7.  System Components
-8.  Why Distributed Architecture?
-9.  Docker Execution Engine
-10. BullMQ Queue
-11. Redis Pub/Sub
-12. Real-time Updates
-13. Folder Structure  
-14. Engineering Challenges
-15. Tech Stack 
-17. Environment Variables 
-18. Deployment
-19. Future Improvements
+1. Introduction
+2. Why WeCode?
+3. Demo
+4. Features
+5. AI Features
+6. High Level Architecture
+7. AI Request Flow
+8. Submission Lifecycle
+9. Distributed Judge Architecture
+10. Docker Execution Engine
+11. BullMQ Job Queue
+12. Redis Pub/Sub
+13. Real-Time Communication
+14. Folder Structure
+15. Engineering Challenges
+16. Tech Stack
+17. Local Setup
+18. Environment Variables
+19. Deployment
+20. Future Improvements
 
-------------------------------------------------------------------------
+---
 
 # 🎯 Introduction
 
-WeCode is a distributed online coding platform inspired by LeetCode. The
-project was built to understand how real coding platforms securely
-execute untrusted user code while keeping the application responsive and
-scalable.
+WeCode is a production-inspired online coding platform designed to explore how modern coding platforms combine **distributed systems** with **Generative AI**.
 
-Instead of executing submissions directly inside the backend API, WeCode
-separates responsibilities into independent services.
+Unlike traditional LeetCode clones that stop at CRUD operations, WeCode focuses on the engineering challenges behind secure code execution, scalable architecture, and intelligent coding assistance.
 
-Core engineering concepts explored:
+The platform provides:
 
--   Distributed System Design
--   Background Job Processing
--   Docker-based Sandboxing
--   Redis Pub/Sub Communication
--   Real-time WebSockets
--   Secure Code Execution
--   CI/CD & Cloud Deployment
+- Secure Docker-based code execution
+- Distributed judging using BullMQ & Redis
+- Real-time verdict updates
+- AI-powered coding assistant
+- Retrieval-Augmented Generation (RAG)
+- Context-aware coding guidance
 
-------------------------------------------------------------------------
+---
 
-# 💡 Why I Built This
+# 💡 Why I Built WeCode
 
-Most coding platform clones stop at CRUD operations.
+Most coding platform clones demonstrate CRUD operations.
 
-I wanted to go deeper.
+I wanted to understand how platforms like LeetCode actually work behind the scenes.
 
 Questions I wanted to answer:
 
--   How does LeetCode safely execute user code?
--   How do long-running submissions avoid blocking the API?
--   How are verdicts delivered instantly?
--   How do services communicate without depending on each other?
+- How is untrusted code executed securely?
+- How do coding platforms remain responsive during long-running submissions?
+- How are verdicts delivered in real time?
+- How can AI provide problem-specific guidance instead of generic responses?
+- How can distributed systems and LLMs work together?
 
-This project is my attempt to answer those questions by implementing the
-core backend architecture from scratch.
-
-------------------------------------------------------------------------
-
-# 🎥 Demo & Live Preview
-
-## 🎬 Project Demo
-
-📺 **Watch the complete 2-minute walkthrough**
-
-👉 **[Watch Demo on YouTube](https://youtu.be/gRpMz6Erv70)**
+This project is my attempt to answer those questions.
 
 ---
-
-## 🌐 Live Application
-
-🚀 **Try WeCode Live**
-
-👉 **https://wecodee.duckdns.org**
-
-> **Demo Credentials (if applicable):**
->
-> Email: `demo@example.com`
->
-> Password: `asdfghjkL`
-
----
-
-## 📸 Screenshots 
-
-### 🏠 Home Page
-
-![Home Page](./assets/home.png)
-
----
-
-### 🔐 Login
-
-![Login](./assets/login.png)
-
----
-
-### 💻 Problems
-
-![Code Editor](./assets/problems.png)
-
----
-
-### ⚡ Submission Result
-
-![Submission Result](./assets/submission.png)
-
----
-
-### 👤 Dashboard
-
-![Dashboard](./assets/dashboard.png)
-------------------------------------------------------------------------
 
 # ✨ Features
 
 ## Authentication
 
--   JWT Authentication
--   Login / Registration
--   Protected Routes
--   Admin & User Roles
+- JWT Authentication
+- Login / Registration
+- Protected Routes
+- Role-based Authorization
+
+---
 
 ## Problems
 
--   CRUD Operations
--   Difficulty Levels
--   Tags
--   Hidden Test Cases
+- CRUD Operations
+- Difficulty Levels
+- Tags
+- Hidden Test Cases
+
+---
 
 ## Judge
 
--   Docker Isolation
--   Multiple Test Cases
--   Runtime Calculation
--   Wrong Answer Detection
--   TLE Detection
--   Compilation Error Detection
+- Docker Sandboxed Execution
+- Multiple Test Cases
+- Runtime Measurement
+- Wrong Answer Detection
+- Time Limit Exceeded
+- Runtime Errors
+- Compilation Errors
 
-## Real Time
+---
 
--   Socket.IO
--   Redis Pub/Sub
--   Live Verdict Updates
+## Real-Time
 
-------------------------------------------------------------------------
+- Socket.IO
+- Redis Pub/Sub
+- Live Submission Status
+- Instant Verdict Updates
+
+---
+
+# 🤖 AI Features
+
+- AI Chat for coding discussions
+- AI Hint Generation
+- AI Code Review
+- Retrieval-Augmented Generation (RAG)
+- Semantic Search using Embeddings
+- Prompt Engineering
+- Tool Calling
+- Structured Outputs
+- Conversational Memory
+
+---
 
 # 🏗 High Level Architecture
 
-``` text
+```text
                  React Frontend
                         │
                         ▼
                 Express Backend API
+                 ┌──────────────┐
+                 │              │
+                 ▼              ▼
+          MongoDB Database   AI Services
+                 │              │
+                 ▼              ▼
+          BullMQ Job Queue   LangChain
+                 │              │
+                 ▼              ▼
+          Judge Worker      Pinecone
+                 │              │
+                 ▼              ▼
+        Docker Sandbox     Google Gemini
+                 │              │
+                 └──────┬───────┘
+                        ▼
+                 Socket.IO Updates
                         │
                         ▼
-                    MongoDB
-                        │
-                        ▼
-                 BullMQ Job Queue
-                        │
-                        ▼
-                      Redis
-                        │
-                        ▼
-                 Judge Worker Service
-                        │
-                        ▼
-               Docker Execution Engine
-                        │
-                        ▼
-              Compile & Execute Code
-                        │
-                        ▼
-                  Redis Pub/Sub
-                        │
-                        ▼
-                Backend Subscriber
-                        │
-                        ▼
-                   Socket.IO Server
-                        │
-                        ▼
-                 React Frontend
+                  React Frontend
 ```
 
-------------------------------------------------------------------------
+---
+
+# 🤖 AI Request Flow
+
+```text
+User Question
+      │
+      ▼
+LangChain
+      │
+      ▼
+Generate Embedding
+      │
+      ▼
+Pinecone Vector Search
+      │
+      ▼
+Retrieve Relevant Chunks
+      │
+      ▼
+Prompt Template
+      │
+      ▼
+Google Gemini
+      │
+      ▼
+AI Response
+```
+
+---
 
 # 🔄 Submission Lifecycle
 
-## Step 1 --- User submits code
+(Keep your existing lifecycle. It's already excellent.)
 
-The frontend sends a POST request containing:
-
--   Source code
--   Language
--   Problem ID
-
-↓
-
-## Step 2 --- Backend validation
-
-The backend:
-
--   validates JWT
--   validates the problem
--   stores a new submission document
-
-↓
-
-## Step 3 --- Queue Creation
-
-Instead of compiling immediately, the backend pushes a BullMQ job.
-
-Why?
-
-Compilation is expensive.
-
-Keeping it inside the request-response cycle would block the server.
-
-↓
-
-## Step 4 --- Judge Worker and Run Worker
-
-A dedicated Judge Worker continuously listens for new jobs.
-
-As soon as one arrives:
-
--   fetch submission
--   prepare execution
--   launch Docker
-
-↓
-
-## Step 5 --- Docker Container
-
-Inside Docker:
-
--   create source file
--   compile
--   execute
--   compare outputs
--   measure runtime
-
-↓
-
-## Step 6 --- Verdict
-
-Judge creates
-
--   Accepted
--   Wrong Answer
--   Runtime Error
--   Compilation Error
--   Time Limit Exceeded
-
-↓
-
-## Step 7 --- Redis
-
-Judge publishes result.
-
-It never directly calls the backend.
-
-↓
-
-## Step 8 --- Backend Subscriber
-
-Backend receives the Redis event.
-
-Updates MongoDB.
-
-↓
-
-## Step 9 --- Socket.IO
-
-Backend emits event to frontend.
-
-↓
-
-## Step 10 --- User
-
-Verdict appears instantly without refreshing.
-
-------------------------------------------------------------------------
-
-# ⚙ Why Distributed Architecture?
-
-## Traditional Approach
-
-``` text
-Client
-   │
-Backend
-   │
-Compile
-   │
-Execute
-```
-
-Problems:
-
--   Slow API
--   Request blocking
--   Poor scalability
-
-------------------------------------------------------------------------
-
-## WeCode Approach
-
-``` text
-Client
-   │
-Backend
-   │
-Queue
-   │
-Judge Worker
-   │
-Docker
-```
-
-Benefits:
-
--   Fast API responses
--   Independent scaling
--   Fault isolation
-
-------------------------------------------------------------------------
-
-# 🐳 Docker Execution
-
-Running arbitrary code directly on the server is dangerous.
-
-Every submission executes inside an isolated Docker container.
-
-Benefits:
-
--   Filesystem isolation
--   Process isolation
--   Easy cleanup
--   Safer execution
-
-Execution Flow:
-
-``` text
-Submission
-
-↓
-
-Temporary Container
-
-↓
-
-Compile
-
-↓
-
-Execute
-
-↓
-
-Destroy Container
-```
-
-------------------------------------------------------------------------
-
-# 📬 BullMQ
-
-BullMQ acts as the producer-consumer queue.
-
-Backend:
-
-Producer
-
-Judge:
-
-Consumer
-
-Advantages:
-
--   Background processing
--   Retries
--   Scalability
--   Decoupling
-
-------------------------------------------------------------------------
-
-# 📡 Redis Pub/Sub
-
-Instead of
-
-Judge → HTTP → Backend
-
-We use
-
-Judge → Redis → Backend
-
-Advantages:
-
--   Loose coupling
--   Event-driven communication
--   Easy scaling
-
-------------------------------------------------------------------------
-
-# ⚡ Socket.IO
-
-Polling wastes resources.
-
-Instead:
-
-Judge finishes
-
-↓
-
-Redis
-
-↓
-
-Backend
-
-↓
-
-Socket.IO
-
-↓
-
-Frontend
-
-Instant verdict.
-
-------------------------------------------------------------------------
-
-# 📂 Folder Structure
-
-``` text
-frontend/
-    components/
-    pages/
-    hooks/
-
-backend/
-    controllers/
-    middleware/
-    routes/
-    services/
-    models/
-    socket/
-
-judge-service/
-    workers/
-    compiler/
-    docker/
-    queues/
-```
-
-Each module has a single responsibility, making the project easier to
-maintain and extend.
-
-------------------------------------------------------------------------
+---
 
 # 🧠 Engineering Challenges
 
-## Challenge 1
+## Secure Code Execution
 
-### Problem
+**Problem**
 
-Executing user code safely.
+Executing untrusted user code safely.
 
-### Solution
+**Solution**
 
-Docker sandbox.
+Docker sandbox with isolated containers.
 
-------------------------------------------------------------------------
+---
 
-## Challenge 2
+## Blocking API Requests
 
-### Problem
+**Problem**
 
-Long-running compilation blocks backend.
+Compilation blocks HTTP requests.
 
-### Solution
+**Solution**
 
 BullMQ background workers.
 
-------------------------------------------------------------------------
+---
 
-## Challenge 3
+## Real-Time Verdicts
 
-### Problem
+**Problem**
 
-Need instant verdicts.
+Users should receive verdicts instantly.
 
-### Solution
+**Solution**
 
 Redis Pub/Sub + Socket.IO.
 
-------------------------------------------------------------------------
+---
 
-## Challenge 4
+## AI Hallucinations
 
-### Problem
+**Problem**
 
-Judge and backend should remain independent.
+LLMs generate generic or incorrect coding advice.
 
-### Solution
+**Solution**
 
-Asynchronous event-driven architecture.
+Retrieval-Augmented Generation (RAG) with Pinecone.
 
-------------------------------------------------------------------------
+---
+
+## Context Awareness
+
+**Problem**
+
+The AI must answer only using the current coding problem.
+
+**Solution**
+
+Semantic search using embeddings and prompt engineering.
+
+---
+
+# 📂 Folder Structure
+
+```text
+frontend/
+
+backend/
+ ├── ai/
+ │    ├── config/
+ │    ├── prompts/
+ │    ├── rag/
+ │    ├── services/
+ │    └── controllers/
+ │
+ ├── routes/
+ ├── middleware/
+ ├── models/
+ ├── socket/
+
+judge-service/
+```
+
+---
 
 # 🛠 Tech Stack
 
-Frontend: - React - TypeScript - Tailwind CSS
+## Frontend
 
-Backend: - Node.js - Express - JWT
+- React
+- TypeScript
+- Tailwind CSS
 
-Database: - MongoDB
+## Backend
 
-Infrastructure: - Docker - Redis - BullMQ - Socket.IO
+- Node.js
+- Express.js
+- JWT Authentication
 
-Deployment: - AWS EC2 - GitHub Actions - Nginx
+## AI
 
-------------------------------------------------------------------------
+- Google Gemini
+- LangChain
+- Pinecone
+- Prompt Engineering
+- Retrieval-Augmented Generation
+- Tool Calling
+- Structured Outputs
 
-# 🚀 Local Setup
-
-## Prerequisites
-
-Make sure you have the following installed:
+## Infrastructure
 
 - Docker
-- Docker Compose
-- Git
-
-Verify your installation:
-
-```bash
-docker --version
-docker compose version
-```
-
----
-
-## Clone the Repository
-
-```bash
-git clone https://github.com/paras027/WeCode.git
-
-cd WeCode
-```
-
----
-
-## Configure Environment Variables
-
-Create the required `.env` files.
-
-### Backend
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-### Frontend
-
-```bash
-cp frontend/.env.example frontend/.env
-```
-
-### Judge Service
-
-```bash
-cp judge-service/.env.example judge-service/.env
-```
-
-Update the environment variables as required.
-
----
-
-## Start the Entire Application
-
-```bash
-docker compose up --build
-```
-
-This command starts:
-
-- React Frontend
-- Express Backend
-- MongoDB
 - Redis
-- Judge Service
+- BullMQ
+- Socket.IO
+
+## Database
+
+- MongoDB
+
+## Deployment
+
+- AWS EC2
+- GitHub Actions
+- Nginx
 
 ---
 
-## Stop the Application
+# 🚀 Future Improvements
 
-```bash
-docker compose down
-```
-
----
-
-## Rebuild Containers
-
-```bash
-docker compose up --build
-```
+- Contest Mode
+- Leaderboards
+- Custom Test Cases
+- Multi-Agent Workflows
+- Model Context Protocol (MCP)
+- LangGraph Integration
+- Horizontal Judge Scaling
+- Metrics & Observability
 
 ---
-
-## View Logs
-
-```bash
-docker compose logs -f
-```
-------------------------------------------------------------------------
-
-# 🔐 Environment Variables
-
-Backend
-
-``` env.production
-PORT= 
-MONGO_URI= 
-NODE_ENV= 
-JWT_SECRET=
-JWT_REFRESH_SECRET= 
-JWT_EXPIRES_IN=
-RESEND_API_KEY=
-REDIS_HOST=
-REDIS_PORT =
-```
-
-Frontend
-
-``` env.production
-VITE_API_URL=
-```
-
-Judge
-
-``` env.production
-PORT =
-MONGO_URI=
-NODE_ENV=
-REDIS_HOST=
-REDIS_PORT=
-WORKSPACE_PATH=
-CONTAINER_WORKSPACE=
-```
-
-------------------------------------------------------------------------
-
-# ☁ Deployment
-
--   Dockerized Services
--   GitHub Actions
--   AWS EC2
--   Nginx Reverse Proxy
-
-------------------------------------------------------------------------
-
-# 🛣 Future Improvements
-
--   Contest Mode
--   Leaderboards
--   Custom Test Cases
--   AI Code Review
--   Kubernetes
--   Horizontal Judge Scaling
--   Metrics & Monitoring
-
-------------------------------------------------------------------------
 
 # 👨‍💻 Author
 
 **Paras Sharma**
 
-Backend & MERN Developer
+**Full Stack Developer | AI Engineer**
 
-If this repository helped you, consider giving it a ⭐.
+If you found this project useful, consider giving it a ⭐

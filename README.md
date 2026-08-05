@@ -22,7 +22,7 @@ Secure Docker Execution • AI Chat • AI Hint Generation • AI Code Review �
 - ✅ LangChain + Google Gemini + Pinecone
 - ✅ AWS Deployment
 
-# 📖 Table of Contents
+# 📖 Table of Contents 
 
 1. Introduction
 2. Why WeCode?
